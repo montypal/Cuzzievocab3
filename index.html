@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Cuzzie Vocab Showdown</title>
+
+  <!-- New Title Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -23,17 +27,13 @@
     }
 
     .title {
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
+      font-family: "Anton", sans-serif;
+      font-size: 3rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #ffd54f;
       text-shadow: 0 0 10px rgba(0,0,0,0.8);
-    }
-
-    .subtitle {
-      font-size: 1rem;
-      color: #b0c4ff;
     }
 
     .panel {
@@ -47,8 +47,6 @@
 
     .stats-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       justify-content: space-between;
       align-items: center;
       font-size: 0.95rem;
@@ -69,15 +67,6 @@
       color: #ffeb3b;
     }
 
-    .streak {
-      color: #ffcc80;
-      font-weight: 600;
-    }
-
-    .question-counter {
-      color: #b0bec5;
-    }
-
     .mode-badge {
       display: inline-block;
       padding: 4px 10px;
@@ -95,22 +84,9 @@
       color: #111827;
     }
 
-    .question-text {
-      font-size: 1.05rem;
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .question-prompt {
-      font-size: 0.95rem;
-      color: #b0c4ff;
-      margin-bottom: 8px;
-      font-style: italic;
-    }
-
     .question-main {
-      font-size: 1.15rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
       color: #fffde7;
       margin-bottom: 14px;
     }
@@ -153,13 +129,6 @@
       transform: translateY(-1px);
     }
 
-    .option-btn.selected {
-      background: #ffca28;
-      color: #111827;
-      border-color: #ffb300;
-      box-shadow: 0 0 12px rgba(255, 213, 79, 0.7);
-    }
-
     .option-btn.correct {
       background: #66bb6a;
       border-color: #43a047;
@@ -172,43 +141,14 @@
       color: #fff3f3;
     }
 
-    .input-row {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
     .input-row input[type="text"] {
-      flex: 1;
-      min-width: 140px;
+      width: 100%;
       padding: 8px 10px;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.8);
       background: rgba(15, 23, 42, 0.9);
       color: #e3f2fd;
       font-size: 0.95rem;
-    }
-
-    .input-row input[type="text"]::placeholder {
-      color: #6b7280;
-    }
-
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 14px;
-    }
-
-    .left-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
     }
 
     .btn {
@@ -226,12 +166,6 @@
     .btn-primary {
       background: linear-gradient(135deg, #42a5f5, #1e88e5);
       color: #e3f2fd;
-      box-shadow: 0 0 12px rgba(33, 150, 243, 0.7);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #64b5f6, #2196f3);
-      transform: translateY(-1px);
     }
 
     .btn-secondary {
@@ -239,40 +173,14 @@
       color: #e2e8f0;
     }
 
-    .btn-secondary:hover {
-      background: rgba(148, 163, 184, 0.7);
-      transform: translateY(-1px);
-    }
-
     .btn-gold-toggle {
       background: linear-gradient(135deg, #ffeb3b, #ffa000);
       color: #1f2933;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .btn-gold-toggle.off {
       background: rgba(120, 144, 156, 0.6);
       color: #eceff1;
-      box-shadow: none;
-    }
-
-    .btn-gold-toggle span {
-      font-size: 0.8rem;
-    }
-
-    .gold-note {
-      font-size: 0.8rem;
-      color: #ffe082;
-      margin-top: 4px;
-    }
-
-    .announcer {
-      font-size: 0.9rem;
-      color: #c5cae9;
-      font-style: italic;
-      margin-top: 8px;
     }
 
     .feedback {
@@ -294,708 +202,244 @@
       color: #ffebee;
     }
 
-    .feedback strong {
-      color: #fffde7;
-    }
-
-    .small-label {
-      font-size: 0.8rem;
-      color: #90a4ae;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 4px;
-    }
-
     .word-highlight {
       color: #ffeb3b;
       font-weight: 700;
     }
-
-    footer {
-      text-align: center;
-      margin-top: 18px;
-      font-size: 0.75rem;
-      color: #78909c;
-    }
-
-    @media (max-width: 600px) {
-      .title {
-        font-size: 1.8rem;
-      }
-      .stats-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-    }
   </style>
 </head>
+
 <body>
 <div class="game-container">
   <header>
     <div class="title">Cuzzie Vocab Showdown</div>
-    <div class="subtitle">Earn XP, go for the gold, and prove your vocabulary is incontrovertible.</div>
   </header>
 
   <section class="panel">
     <div class="stats-row">
-      <div>
-        <span class="stat-label">XP</span>
-        <span class="xp-value" id="xpDisplay">0</span>
-      </div>
-      <div>
-        <span class="stat-label">Streak</span>
-        <span class="streak" id="streakDisplay">0</span>
-      </div>
-      <div>
-        <span class="stat-label">Question</span>
-        <span class="question-counter" id="questionCounter">1</span>
-      </div>
-      <div>
-        <span id="modeBadge" class="mode-badge gold-off">Go for the Gold: OFF</span>
-      </div>
+      <div><span class="stat-label">XP</span> <span class="xp-value" id="xpDisplay">0</span></div>
+      <div><span class="stat-label">Streak</span> <span id="streakDisplay">0</span></div>
+      <div><span class="stat-label">Q</span> <span id="questionCounter">1</span></div>
+      <div><span id="modeBadge" class="mode-badge gold-off">Gold: OFF</span></div>
     </div>
   </section>
 
   <section class="panel">
-    <div class="small-label">Round Prompt</div>
-    <div class="question-prompt" id="questionPrompt">
-      The lights are hot, the crowd is roaring. Your word awaits…
-    </div>
+    <div id="questionArea"></div>
+    <div id="answerArea"></div>
 
-    <div id="questionArea" class="question-text">
-      <!-- Question content injected by JS -->
-    </div>
-
-    <div id="answerArea">
-      <!-- Answer controls injected by JS -->
-    </div>
-
-    <div class="controls-row">
-      <div class="left-controls">
-        <button class="btn btn-primary" id="submitButton">Lock in answer</button>
-        <button class="btn btn-secondary" id="nextButton" disabled>Next question</button>
-      </div>
-      <button class="btn btn-gold-toggle off" id="goldToggleButton">
-        ⭐ Go for the Gold
-        <span>(+200 XP / −200 XP)</span>
-      </button>
-    </div>
-    <div class="gold-note">
-      Normal question: +100 XP if correct. Go for the Gold: double reward, double penalty.
-    </div>
-    <div class="announcer" id="announcerText">
-      Announcer: “Will you play it safe, or chase that glittering XP?”
+    <div style="margin-top: 14px; display: flex; justify-content: space-between;">
+      <button class="btn btn-primary" id="submitButton">Submit</button>
+      <button class="btn btn-secondary" id="nextButton" disabled>Next</button>
+      <button class="btn btn-gold-toggle off" id="goldToggleButton">Go for the Gold</button>
     </div>
 
     <div id="feedbackArea"></div>
   </section>
-
-  <footer>
-    Built for legendary cuzzies who think “sine qua non” is just part of their vernacular.
-  </footer>
 </div>
 
 <script>
-  // === VOCAB DATA ===========================================================
-  // Each entry: word, definition, example sentence, and a nuance/synonym clue.
-  const VOCAB = [
-    {
-      word: "ubiquitous",
-      definition: "present or found everywhere",
-      example: "During cuzzie week, inside jokes seem ubiquitous—no matter where you go, one pops up.",
-      nuance: "Describes something that appears to be all over the place at once."
-    },
-    {
-      word: "garrulous",
-      definition: "excessively talkative",
-      example: "The normally garrulous cousins fell silent when the roller coaster reached the zenith of its climb.",
-      nuance: "Especially talkative in a rambling, sometimes trivial way."
-    },
-    {
-      word: "lionize",
-      definition: "to treat as an object of great interest or importance",
-      example: "They continued to lionize Nani’s cooking, insisting it was a panacea for all sadness.",
-      nuance: "To praise and treat someone like a celebrity."
-    },
-    {
-      word: "fetid",
-      definition: "smelling extremely unpleasant",
-      example: "The fetid locker room was an affront to their normally fastidious standards.",
-      nuance: "Focuses specifically on a horrible smell."
-    },
-    {
-      word: "macabre",
-      definition: "disturbing and horrifying because of involvement with or depiction of death and injury",
-      example: "The movie’s macabre scenes were too much for the more timorous cousins.",
-      nuance: "Often used for horror stories, grisly art, or dark themes."
-    },
-    {
-      word: "preternatural",
-      definition: "exceeding what is natural or regular; extraordinary",
-      example: "Jaya has a preternatural ability to remember every single vocab word.",
-      nuance: "So beyond normal that it feels almost supernatural."
-    },
-    {
-      word: "iconoclast",
-      definition: "a person who attacks or criticizes cherished beliefs or institutions",
-      example: "The iconoclast in the family rolled their eyes at the sacrosanct tradition of group photos.",
-      nuance: "Not just different, but actively challenges what others revere."
-    },
-    {
-      word: "tragicomic",
-      definition: "manifesting both tragic and comic aspects",
-      example: "The cousins found it tragicomic when the ride broke right as they reached the front.",
-      nuance: "Something that is sad and funny at the same time."
-    },
-    {
-      word: "vox populi",
-      definition: "Latin for “the voice of the people”",
-      example: "The vox populi was clear: the cousins demanded ice cream before going home.",
-      nuance: "Refers to popular opinion, not just one person’s view."
-    },
-    {
-      word: "inimitable",
-      definition: "so good or unusual as to be impossible to copy; unique",
-      example: "Their inimitable group chat humor could never be replicated by outsiders.",
-      nuance: "Uniqueness that is so strong others can’t match it."
-    },
-    {
-      word: "supplicant",
-      definition: "a person making a humble or earnest plea",
-      example: "Aria became a supplicant, begging for just one more ride before leaving.",
-      nuance: "Emphasizes humility when asking for something."
-    },
-    {
-      word: "erstwhile",
-      definition: "former; previous",
-      example: "Their erstwhile enemy Henry became a reluctant ally when the line-cutter appeared.",
-      nuance: "Refers to something that used to be true, but no longer is."
-    },
-    {
-      word: "Pyrrhic victory",
-      definition: "a victory gained at such a great cost that it is almost a defeat",
-      example: "Winning the argument but missing the whole ride felt like a Pyrrhic victory.",
-      nuance: "You technically win, but it hurts you so much that it barely counts as a win."
-    },
-    {
-      word: "boondoggle",
-      definition: "a wasteful or impractical project",
-      example: "Their plan to visit every ride twice in one day was a glorious boondoggle.",
-      nuance: "Sounds impressive, but mostly wastes time or resources."
-    },
-    {
-      word: "fastidious",
-      definition: "extremely or excessively careful or detailed",
-      example: "Kaiya’s fastidious packing list included three different backup snacks, just in case.",
-      nuance: "Can be positive (careful) or slightly negative (picky)."
-    },
-    {
-      word: "perfunctory",
-      definition: "carried out with minimal effort or reflection; superficial",
-      example: "Their perfunctory thanks to the ride operator did not match how thrilled they actually felt.",
-      nuance: "Doing something just to get it over with, without real feeling."
-    },
-    {
-      word: "dour",
-      definition: "relentlessly severe, stern, or gloomy",
-      example: "The dour security guard did not laugh at their saccharine jokes.",
-      nuance: "Not just serious, but joyless and grim."
-    },
-    {
-      word: "nihilism",
-      definition: "the belief that life is meaningless and all values are baseless",
-      example: "After the churro stand closed, Akshay jokingly declared he had fallen into nihilism.",
-      nuance: "Extreme pessimism about meaning or values."
-    },
-    {
-      word: "gourmand",
-      definition: "someone fond of eating and drinking",
-      example: "Every gourmand in the family agreed that Din Tai Fung was sacrosanct.",
-      nuance: "Not just someone who eats, but really loves food."
-    },
-    {
-      word: "sagacity",
-      definition: "keen mental discernment and good judgment; wisdom",
-      example: "With unusual sagacity, Aarav suggested they check the wait times before running to the ride.",
-      nuance: "A deep, practical kind of wisdom."
-    },
-    {
-      word: "hyperbole",
-      definition: "extravagant exaggeration",
-      example: "Claiming the line was ‘a billion hours long’ was obvious hyperbole.",
-      nuance: "Exaggeration used for effect, not meant to be taken literally."
-    },
-    {
-      word: "maelstrom",
-      definition: "a situation or state of confused movement or violent turmoil",
-      example: "The exit gate turned into a maelstrom of strollers, balloons, and cousins.",
-      nuance: "Not just chaos, but swirling, intense chaos."
-    },
-    {
-      word: "rebuke",
-      definition: "to scold or criticize sharply",
-      example: "They tried to rebuke Henry for cutting in line, but he simply shrugged.",
-      nuance: "Sharper than “correct,” but not necessarily a long rant."
-    },
-    {
-      word: "convivial",
-      definition: "friendly, lively, and enjoyable; characterized by feasting and merriment",
-      example: "The evening ended in a convivial dinner full of laughter and inside jokes.",
-      nuance: "Warm social atmosphere with fun and food."
-    },
-    {
-      word: "apocryphal",
-      definition: "of doubtful authenticity, though widely circulated as true",
-      example: "The apocryphal story about someone puking on every ride turned out to be exaggerated.",
-      nuance: "A questionable story people keep repeating."
-    },
-    {
-      word: "intransigent",
-      definition: "unwilling to compromise or change one’s views",
-      example: "Aria was intransigent: there would be boba, or there would be mutiny.",
-      nuance: "Stubborn specifically about refusing compromise."
-    },
-    {
-      word: "ostracize",
-      definition: "to exclude from a group",
-      example: "The cousins threatened to ostracize anyone who said the trip was ‘mid.’",
-      nuance: "Social exclusion on purpose."
-    },
-    {
-      word: "discreet",
-      definition: "careful not to attract attention or cause embarrassment",
-      example: "They were discreet about sneaking snacks into the movie, or so they hoped.",
-      nuance: "About being subtle and low-key."
-    },
-    {
-      word: "avant garde",
-      definition: "new and unusual or experimental ideas, especially in the arts",
-      example: "Their avant garde family photo posed everyone mid-jump, shouting vocab words.",
-      nuance: "Boldly unconventional, often artsy."
-    },
-    {
-      word: "non sequitur",
-      definition: "a conclusion or statement that does not logically follow from the previous statement",
-      example: "Henry’s random soliloquy about tacos was a complete non sequitur in the conversation about math.",
-      nuance: "Logical disconnect, not just a new topic."
-    },
-    {
-      word: "zealot",
-      definition: "a person who is fanatical and uncompromising about their ideals",
-      example: "The churro zealot insisted that no other dessert was worth considering.",
-      nuance: "Intense, almost extreme enthusiasm for a belief."
-    },
-    {
-      word: "mercurial",
-      definition: "characterized by rapid and unpredictable changes of mood",
-      example: "The group chat’s mercurial energy switched from rancor to schadenfreude in seconds.",
-      nuance: "Mood that shifts suddenly and unpredictably."
-    },
-    {
-      word: "parsimonious",
-      definition: "unwilling to spend money or use resources; stingy",
-      example: "Calling Nani parsimonious was mendacious—her largess was legendary.",
-      nuance: "Goes beyond ‘careful’: actively stingy."
-    },
-    {
-      word: "abstruse",
-      definition: "difficult to understand; obscure",
-      example: "The roller coaster’s safety sign was so abstruse that no one read past line two.",
-      nuance: "Hard to understand even if you’re trying."
-    },
-    {
-      word: "mendacious",
-      definition: "not telling the truth; lying",
-      example: "His mendacious claim that the line was ‘only five minutes’ led to an hour of waiting.",
-      nuance: "Habitually or deliberately untruthful."
-    },
-    {
-      word: "quandary",
-      definition: "a state of perplexity or doubt",
-      example: "They were in a quandary: boba first or ride first?",
-      nuance: "Stuck between options, unsure what to choose."
-    },
-    {
-      word: "circumvent",
-      definition: "to manage to get around, especially by clever strategy",
-      example: "With sagacity, they used the app to circumvent the longest lines.",
-      nuance: "A clever workaround, not brute force."
-    },
-    {
-      word: "conflagration",
-      definition: "a large disastrous fire or a major conflict",
-      example: "A single spilled drink almost sparked a conflagration between the cousins.",
-      nuance: "Huge, intense destruction or conflict."
-    },
-    {
-      word: "nadir",
-      definition: "the lowest point",
-      example: "Realizing the park was closing while they were still in line was the emotional nadir of the day.",
-      nuance: "Opposite of zenith; the bottom moment."
-    },
-    {
-      word: "neophyte",
-      definition: "a beginner",
-      example: "Aria was a neophyte at roller coasters, but by the end she was fearless.",
-      nuance: "Someone new to a particular skill or activity."
-    },
-    {
-      word: "avarice",
-      definition: "excessive or insatiable desire for wealth or gain",
-      example: "Their avarice for prize tickets turned the arcade into a competitive maelstrom.",
-      nuance: "Greed specifically for money or gain."
-    },
-    {
-      word: "soliloquy",
-      definition: "an act of talking to oneself; a dramatic monologue",
-      example: "Akshay’s soliloquy about dessert options could have filled an entire play.",
-      nuance: "A long solo speech, especially in drama."
-    },
-    {
-      word: "esoteric",
-      definition: "intended for or understood by only a small number of people",
-      example: "Their most esoteric jokes depended on knowing every cousin’s middle name.",
-      nuance: "So specialized that only insiders understand."
-    },
-    {
-      word: "zeitgeist",
-      definition: "the defining spirit or mood of a particular period of history",
-      example: "Their group selfies perfectly captured the zeitgeist of early‑2020s cousin chaos.",
-      nuance: "The general ‘vibe’ of an era."
-    }
-  ];
+/* ===========================
+   VOCAB LIST (same as before)
+   =========================== */
+const VOCAB = [
+  { word: "ubiquitous", definition: "present or found everywhere", example: "Inside jokes were ubiquitous.", nuance: "Appears everywhere" },
+  { word: "garrulous", definition: "excessively talkative", example: "The normally garrulous cousins fell silent.", nuance: "Talkative" },
+  { word: "lionize", definition: "to treat as important", example: "They continued to lionize Nani.", nuance: "Praise like a celebrity" },
+  { word: "fetid", definition: "smelling extremely unpleasant", example: "The fetid locker room...", nuance: "Bad smell" },
+  { word: "macabre", definition: "disturbing due to death", example: "The macabre scenes...", nuance: "Dark, death‑related" },
+  { word: "preternatural", definition: "extraordinary; beyond normal", example: "A preternatural ability...", nuance: "Beyond natural" },
+  { word: "iconoclast", definition: "one who attacks cherished beliefs", example: "The iconoclast rolled their eyes.", nuance: "Challenges norms" },
+  { word: "tragicomic", definition: "both tragic and comic", example: "A tragicomic moment...", nuance: "Sad + funny" },
+  { word: "vox populi", definition: "voice of the people", example: "The vox populi was clear.", nuance: "Popular opinion" },
+  { word: "inimitable", definition: "impossible to copy", example: "Their inimitable humor...", nuance: "Unique" },
+  { word: "supplicant", definition: "one making a humble plea", example: "A supplicant begging...", nuance: "Humble requester" },
+  { word: "erstwhile", definition: "former; previous", example: "Their erstwhile enemy...", nuance: "Former" },
+  { word: "Pyrrhic victory", definition: "a costly victory", example: "A Pyrrhic victory...", nuance: "Win that hurts you" },
+  { word: "boondoggle", definition: "wasteful project", example: "A glorious boondoggle...", nuance: "Wasteful" },
+  { word: "fastidious", definition: "very careful or picky", example: "A fastidious list...", nuance: "Detail‑oriented" },
+  { word: "perfunctory", definition: "done with little effort", example: "A perfunctory thanks...", nuance: "Half‑hearted" },
+  { word: "dour", definition: "stern, joyless", example: "The dour guard...", nuance: "Gloomy" },
+  { word: "nihilism", definition: "belief life is meaningless", example: "He fell into nihilism...", nuance: "Meaninglessness" }
+];
 
-  // === GAME STATE ============================================================
-  let xp = 0;
-  let streak = 0;
-  let questionNumber = 1;
-  let currentQuestion = null;
-  let questionLocked = false;
-  let goForGold = false;
+/* ===========================
+   GAME STATE
+   =========================== */
+let xp = 0;
+let streak = 0;
+let questionNumber = 1;
+let currentQuestion = null;
+let questionLocked = false;
 
-  const BASE_XP = 100;
-  const GOLD_MULTIPLIER = 2;
+let goForGold = false;
+let goldCooldown = 0; // NEW — counts down from 3
 
-  // === DOM ELEMENTS ==========================================================
-  const xpDisplay = document.getElementById("xpDisplay");
-  const streakDisplay = document.getElementById("streakDisplay");
-  const questionCounter = document.getElementById("questionCounter");
-  const modeBadge = document.getElementById("modeBadge");
-  const questionPrompt = document.getElementById("questionPrompt");
-  const questionArea = document.getElementById("questionArea");
-  const answerArea = document.getElementById("answerArea");
-  const feedbackArea = document.getElementById("feedbackArea");
-  const announcerText = document.getElementById("announcerText");
-  const submitButton = document.getElementById("submitButton");
-  const nextButton = document.getElementById("nextButton");
-  const goldToggleButton = document.getElementById("goldToggleButton");
+const BASE_XP = 100;
+const GOLD_MULTIPLIER = 2;
 
-  // === UTILITIES =============================================================
-  function shuffle(array) {
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
+/* ===========================
+   DOM ELEMENTS
+   =========================== */
+const xpDisplay = document.getElementById("xpDisplay");
+const streakDisplay = document.getElementById("streakDisplay");
+const questionCounter = document.getElementById("questionCounter");
+const modeBadge = document.getElementById("modeBadge");
+const questionArea = document.getElementById("questionArea");
+const answerArea = document.getElementById("answerArea");
+const feedbackArea = document.getElementById("feedbackArea");
+const submitButton = document.getElementById("submitButton");
+const nextButton = document.getElementById("nextButton");
+const goldToggleButton = document.getElementById("goldToggleButton");
+
+/* ===========================
+   UTILITIES
+   =========================== */
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function normalize(t) {
+  return t.trim().toLowerCase();
+}
+
+function updateStats() {
+  xpDisplay.textContent = xp;
+  streakDisplay.textContent = streak;
+  questionCounter.textContent = questionNumber;
+}
+
+/* ===========================
+   GOLD MODE + COOLDOWN
+   =========================== */
+function updateGoldUI() {
+  if (goldCooldown > 0) {
+    goldToggleButton.classList.add("off");
+    goldToggleButton.textContent = `Gold Cooldown: ${goldCooldown}`;
+    modeBadge.textContent = "Gold: COOLDOWN";
+    modeBadge.classList.add("gold-off");
+    return;
   }
 
-  function getRandomWord(excludeWord = null) {
-    let candidates = VOCAB;
-    if (excludeWord) {
-      candidates = VOCAB.filter(item => item.word !== excludeWord);
-    }
-    return candidates[Math.floor(Math.random() * candidates.length)];
+  if (goForGold) {
+    goldToggleButton.classList.remove("off");
+    goldToggleButton.textContent = "Gold: ON";
+    modeBadge.textContent = "Gold: ON";
+    modeBadge.classList.remove("gold-off");
+  } else {
+    goldToggleButton.classList.add("off");
+    goldToggleButton.textContent = "Go for the Gold";
+    modeBadge.textContent = "Gold: OFF";
+    modeBadge.classList.add("gold-off");
   }
+}
 
-  function randomChoice(list) {
-    return list[Math.floor(Math.random() * list.length)];
-  }
+goldToggleButton.addEventListener("click", () => {
+  if (questionLocked) return;
+  if (goldCooldown > 0) return;
 
-  function updateStats() {
-    xpDisplay.textContent = xp;
-    streakDisplay.textContent = streak;
-    questionCounter.textContent = questionNumber;
-  }
+  goForGold = !goForGold;
+  updateGoldUI();
+});
 
-  function setAnnouncer(message) {
-    announcerText.textContent = "Announcer: " + message;
-  }
+/* ===========================
+   QUESTION GENERATION
+   =========================== */
+function generateQuestion() {
+  questionLocked = false;
+  submitButton.disabled = false;
+  nextButton.disabled = true;
+  feedbackArea.innerHTML = "";
 
-  function setFeedback(html, isCorrect) {
-    feedbackArea.innerHTML = html;
-    feedbackArea.className = "feedback " + (isCorrect ? "correct" : "incorrect");
-  }
+  const qType = shuffle(["definitionWord", "fillBlank", "nuance", "termToDefinition"])[0];
+  const item = VOCAB[Math.floor(Math.random() * VOCAB.length)];
 
-  function resetFeedback() {
-    feedbackArea.innerHTML = "";
-    feedbackArea.className = "";
-  }
+  currentQuestion = { type: qType, item, selected: null };
 
-  function toggleGoldMode() {
-    goForGold = !goForGold;
-    if (goForGold) {
-      goldToggleButton.classList.remove("off");
-      modeBadge.classList.remove("gold-off");
-      modeBadge.textContent = "Go for the Gold: ON";
-      setAnnouncer("“Gold mode engaged! Double XP glory—or double XP disaster.”");
-    } else {
-      goldToggleButton.classList.add("off");
-      modeBadge.classList.add("gold-off");
-      modeBadge.textContent = "Go for the Gold: OFF";
-      setAnnouncer("“Back to classic play. Still 100 XP on the line every round.”");
-    }
-  }
+  if (qType === "definitionWord") renderDefinitionQuestion(item);
+  if (qType === "fillBlank") renderFillBlank(item);
+  if (qType === "nuance") renderNuance(item);
+  if (qType === "termToDefinition") renderTermToDefinition(item);
 
-  goldToggleButton.addEventListener("click", () => {
-    if (questionLocked) return;
-    toggleGoldMode();
-  });
+  updateGoldUI();
+}
 
-  // === QUESTION GENERATION ===================================================
+/* ===========================
+   QUESTION TYPES
+   =========================== */
+function renderDefinitionQuestion(item) {
+  const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
+  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
 
-  function generateQuestion() {
-    resetFeedback();
-    questionLocked = false;
-    submitButton.disabled = false;
-    nextButton.disabled = true;
+  questionArea.innerHTML = `
+    <div class="question-main">Which word matches this definition?</div>
+    <div>${item.definition}</div>
+  `;
 
-    const qType = randomChoice(["definitionWord", "fillBlank", "nuance"]);
-    const vocabItem = getRandomWord();
+  answerArea.innerHTML = `
+    <div class="options-grid">
+      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+    </div>
+  `;
 
-    currentQuestion = {
-      type: qType,
-      item: vocabItem,
-      selectedOption: null
-    };
-
-    if (qType === "definitionWord") {
-      renderDefinitionQuestion(vocabItem);
-    } else if (qType === "fillBlank") {
-      renderFillBlankQuestion(vocabItem);
-    } else {
-      renderNuanceQuestion(vocabItem);
-    }
-
-    const prompts = {
-      definitionWord: "Name that word: the crowd whispers, you step into the spotlight…",
-      fillBlank: "Fill in the blank with the perfect word—asterisks and all.",
-      nuance: "Shade of meaning round: can you catch the subtle nuance?"
-    };
-    questionPrompt.textContent = prompts[qType];
-  }
-
-  function renderDefinitionQuestion(item) {
-    const wrong1 = getRandomWord(item.word);
-    const wrong2 = getRandomWord(item.word);
-    const wrong3 = getRandomWord(item.word);
-
-    const options = shuffle([item.word, wrong1.word, wrong2.word, wrong3.word]);
-
-    questionArea.innerHTML = `
-      <div class="question-main">
-        Which word best matches this definition?
-      </div>
-      <div class="question-text">
-        “${item.definition}”
-      </div>
-    `;
-
-    const optionsHtml = options.map((opt, idx) => `
-      <button class="option-btn" data-option="${opt}">${String.fromCharCode(65 + idx)}. ${opt}</button>
-    `).join("");
-
-    answerArea.innerHTML = `
-      <div class="options-grid">
-        ${optionsHtml}
-      </div>
-    `;
-
-    const buttons = answerArea.querySelectorAll(".option-btn");
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (questionLocked) return;
-        buttons.forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        currentQuestion.selectedOption = btn.getAttribute("data-option");
-      });
+  answerArea.querySelectorAll(".option-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (questionLocked) return;
+      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      currentQuestion.selected = btn.dataset.opt;
     });
-  }
-
-  function renderFillBlankQuestion(item) {
-    const masked = item.word.replace(/[A-Za-z]/g, "*"); // asterisks
-    const sentence = item.example.replace(new RegExp(item.word, "i"), `<span class="blank">${masked}</span>`);
-
-    questionArea.innerHTML = `
-      <div class="question-main">
-        Fill in the blank with the correct vocabulary word.
-      </div>
-      <div class="fill-blank">
-        ${sentence}
-      </div>
-    `;
-
-    answerArea.innerHTML = `
-      <div class="input-row">
-        <input type="text" id="fillInput" placeholder="Type the missing word here…" autocomplete="off" />
-      </div>
-    `;
-  }
-
-  function renderNuanceQuestion(item) {
-    // Ask for the word that matches the nuance text
-    const wrong1 = getRandomWord(item.word);
-    const wrong2 = getRandomWord(item.word);
-    const wrong3 = getRandomWord(item.word);
-    const options = shuffle([item.word, wrong1.word, wrong2.word, wrong3.word]);
-
-    questionArea.innerHTML = `
-      <div class="question-main">
-        Which word best matches this description?
-      </div>
-      <div class="question-text">
-        ${item.nuance}
-      </div>
-    `;
-
-    const optionsHtml = options.map((opt, idx) => `
-      <button class="option-btn" data-option="${opt}">${String.fromCharCode(65 + idx)}. ${opt}</button>
-    `).join("");
-
-    answerArea.innerHTML = `
-      <div class="options-grid">
-        ${optionsHtml}
-      </div>
-    `;
-
-    const buttons = answerArea.querySelectorAll(".option-btn");
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (questionLocked) return;
-        buttons.forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        currentQuestion.selectedOption = btn.getAttribute("data-option");
-      });
-    });
-  }
-
-  // === ANSWER CHECKING & SCORING ============================================
-
-  function normalize(text) {
-    return text.trim().toLowerCase().replace(/\s+/g, " ");
-  }
-
-  function checkAnswer() {
-    if (questionLocked) return;
-    if (!currentQuestion) return;
-
-    const item = currentQuestion.item;
-    let userAnswer = null;
-    let isCorrect = false;
-
-    if (currentQuestion.type === "fillBlank") {
-      const input = document.getElementById("fillInput");
-      if (!input || !input.value.trim()) {
-        setAnnouncer("“You haven’t locked in anything yet. The crowd demands a guess!”");
-        return;
-      }
-      userAnswer = normalize(input.value);
-      isCorrect = userAnswer === normalize(item.word);
-    } else {
-      if (!currentQuestion.selectedOption) {
-        setAnnouncer("“Choose an option before you lock in—no psychic answers accepted.”");
-        return;
-      }
-      userAnswer = currentQuestion.selectedOption;
-      isCorrect = normalize(userAnswer) === normalize(item.word);
-
-      // Update button styling
-      const buttons = answerArea.querySelectorAll(".option-btn");
-      buttons.forEach(btn => {
-        const opt = btn.getAttribute("data-option");
-        if (normalize(opt) === normalize(item.word)) {
-          btn.classList.add("correct");
-        }
-        if (normalize(opt) === normalize(userAnswer) && !isCorrect) {
-          btn.classList.add("incorrect");
-        }
-        btn.classList.remove("selected");
-      });
-    }
-
-    // XP calculation
-    let delta = 0;
-    if (isCorrect) {
-      delta = goForGold ? BASE_XP * GOLD_MULTIPLIER : BASE_XP;
-      xp += delta;
-      streak += 1;
-      const streakMsg = streak >= 3 ? ` Your streak of ${streak} is becoming downright preternatural.` : "";
-      const xpMsg = goForGold
-        ? `+${delta} XP for that golden guess!`
-        : `+${delta} XP for a solid hit.`;
-
-      setFeedback(
-        `<strong>Correct!</strong> The word was <span class="word-highlight">${item.word}</span>.<br>
-         Definition: ${item.definition}.<br>
-         Example: “${item.example}”<br>
-         ${xpMsg}${streakMsg}`,
-        true
-      );
-      setAnnouncer("“The board lights up green—what a virtuoso performance!”");
-    } else {
-      delta = goForGold ? -BASE_XP * GOLD_MULTIPLIER : 0;
-      xp = Math.max(0, xp + delta);
-      streak = 0;
-
-      let explanation = "";
-      if (currentQuestion.type === "definitionWord" || currentQuestion.type === "nuance") {
-        explanation = `
-          You chose <strong>${userAnswer}</strong>, but that doesn’t quite match the clue.<br>
-          <strong>${item.word}</strong> means: ${item.definition}.<br>
-          Example: “${item.example}”
-        `;
-      } else {
-        explanation = `
-          You answered <strong>${userAnswer}</strong>, but the missing word was
-          <span class="word-highlight">${item.word}</span>.<br>
-          Definition: ${item.definition}.<br>
-          Example: “${item.example}”
-        `;
-      }
-
-      const xpMsg = goForGold
-        ? `Because you went for the gold and missed, you lost ${Math.abs(delta)} XP.`
-        : `No XP this time—but the explanation should mollify your confusion.`;
-
-      setFeedback(
-        `<strong>Not quite.</strong> ${explanation}<br>${xpMsg}`,
-        false
-      );
-      setAnnouncer("“Oof, the audience gasps—but every misstep is just vocab training, not an ignominious defeat.”");
-    }
-
-    updateStats();
-    questionLocked = true;
-    submitButton.disabled = true;
-    nextButton.disabled = false;
-  }
-
-  submitButton.addEventListener("click", checkAnswer);
-
-  nextButton.addEventListener("click", () => {
-    if (!questionLocked) {
-      setAnnouncer("“You haven’t locked in your answer yet—no skipping the scary question!”");
-      return;
-    }
-    questionNumber += 1;
-    updateStats();
-    generateQuestion();
   });
+}
 
-  // === INITIALIZE ============================================================
-  updateStats();
-  generateQuestion();
-</script>
-</body>
-</html>
+function renderFillBlank(item) {
+  const masked = item.word.replace(/[A-Za-z]/g, "*");
+  const sentence = item.example.replace(new RegExp(item.word, "i"), `<span class="blank">${masked}</span>`);
+
+  questionArea.innerHTML = `
+    <div class="question-main">Fill in the missing word</div>
+    <div class="fill-blank">${sentence}</div>
+  `;
+
+  answerArea.innerHTML = `
+    <div class="input-row">
+      <input id="fillInput" type="text" placeholder="Type the word…" />
+    </div>
+  `;
+}
+
+function renderNuance(item) {
+  const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
+  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
+
+  questionArea.innerHTML = `
+    <div class="question-main">Which word fits this description?</div>
+    <div>${item.nuance}</div>
+  `;
+
+  answerArea.innerHTML = `
+    <div class="options-grid">
+      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+    </div>
+  `;
+
+  answerArea.querySelectorAll(".option-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (questionLocked) return;
+      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      currentQuestion.selected = btn.dataset.opt;
+    });
+  });
+}
+
+function renderTermToDefinition(item) {
+  const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
+  const options = shuffle([item.definition, ...wrong.map(w => w.definition)]);
+
+  questionArea.innerHTML = `
+    <div class="question-main">What is the definition of <span class="word-highlight">${item.word}</span>?</div>
+  `;
+
+  answerArea.innerHTML = `
+    <div class="options-grid
