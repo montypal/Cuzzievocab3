@@ -1,438 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Cuzzie Vocab Showdown</title>
-
-  <!-- New Title Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #2b3580 0, #0b1025 40%, #02030b 100%);
-      color: #f8f8ff;
-    }
-
-    .game-container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .title {
-      font-family: "Anton", sans-serif;
-      font-size: 3rem;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #ffd54f;
-      text-shadow: 0 0 10px rgba(0,0,0,0.8);
-    }
-
-    .panel {
-      background: rgba(6, 12, 40, 0.9);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 0 22px rgba(0,0,0,0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .stats-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.95rem;
-      color: #e0e6ff;
-    }
-
-    .stat-label {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #90caf9;
-      margin-right: 6px;
-    }
-
-    .xp-value {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #ffeb3b;
-    }
-
-    .mode-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, #ffeb3b, #ffa000);
-      color: #231b00;
-    }
-
-    .mode-badge.gold-off {
-      background: linear-gradient(135deg, #cfd8dc, #78909c);
-      color: #111827;
-    }
-
-    .question-main {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #fffde7;
-      margin-bottom: 14px;
-    }
-
-    .fill-blank {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 1.05rem;
-      line-height: 1.5;
-    }
-
-    .blank {
-      color: #ffeb3b;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-    }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .option-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(30, 64, 175, 0.4);
-      color: #e3f2fd;
-      padding: 8px 12px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.15s ease-out;
-    }
-
-    .option-btn:hover {
-      background: rgba(66, 165, 245, 0.7);
-      transform: translateY(-1px);
-    }
-
-    .option-btn.correct {
-      background: #66bb6a;
-      border-color: #43a047;
-      color: #02210a;
-    }
-
-    .option-btn.incorrect {
-      background: #ef5350;
-      border-color: #c62828;
-      color: #fff3f3;
-    }
-
-    .input-row input[type="text"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e3f2fd;
-      font-size: 0.95rem;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 14px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s ease-out;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #42a5f5, #1e88e5);
-      color: #e3f2fd;
-    }
-
-    .btn-secondary {
-      background: rgba(148, 163, 184, 0.4);
-      color: #e2e8f0;
-    }
-
-    .btn-gold-toggle {
-      background: linear-gradient(135deg, #ffeb3b, #ffa000);
-      color: #1f2933;
-    }
-
-    .btn-gold-toggle.off {
-      background: rgba(120, 144, 156, 0.6);
-      color: #eceff1;
-    }
-
-    .feedback {
-      margin-top: 10px;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-    }
-
-    .feedback.correct {
-      background: rgba(56, 142, 60, 0.18);
-      border: 1px solid rgba(129, 199, 132, 0.7);
-      color: #e8f5e9;
-    }
-
-    .feedback.incorrect {
-      background: rgba(211, 47, 47, 0.18);
-      border: 1px solid rgba(239, 83, 80, 0.7);
-      color: #ffebee;
-    }
-
-    .word-highlight {
-      color: #ffeb3b;
-      font-weight: 700;
-    }
-  </style>
-</head>
-
-<body>
-<div class="game-container">
-  <header>
-    <div class="title">Cuzzie Vocab Showdown</div>
-  </header>
-
-  <section class="panel">
-    <div class="stats-row">
-      <div><span class="stat-label">XP</span> <span class="xp-value" id="xpDisplay">0</span></div>
-      <div><span class="stat-label">Streak</span> <span id="streakDisplay">0</span></div>
-      <div><span class="stat-label">Q</span> <span id="questionCounter">1</span></div>
-      <div><span id="modeBadge" class="mode-badge gold-off">Gold: OFF</span></div>
-    </div>
-  </section>
-
-  <section class="panel">
-    <div id="questionArea"></div>
-    <div id="answerArea"></div>
-
-    <div style="margin-top: 14px; display: flex; justify-content: space-between;">
-      <button class="btn btn-primary" id="submitButton">Submit</button>
-      <button class="btn btn-secondary" id="nextButton" disabled>Next</button>
-      <button class="btn btn-gold-toggle off" id="goldToggleButton">Go for the Gold</button>
-    </div>
-
-    <div id="feedbackArea"></div>
-  </section>
-</div>
-
-<script>
-/* ===========================
-   VOCAB LIST (same as before)
-   =========================== */
-const VOCAB = [
-  { word: "ubiquitous", definition: "present or found everywhere", example: "Inside jokes were ubiquitous.", nuance: "Appears everywhere" },
-  { word: "garrulous", definition: "excessively talkative", example: "The normally garrulous cousins fell silent.", nuance: "Talkative" },
-  { word: "lionize", definition: "to treat as important", example: "They continued to lionize Nani.", nuance: "Praise like a celebrity" },
-  { word: "fetid", definition: "smelling extremely unpleasant", example: "The fetid locker room...", nuance: "Bad smell" },
-  { word: "macabre", definition: "disturbing due to death", example: "The macabre scenes...", nuance: "Dark, death‑related" },
-  { word: "preternatural", definition: "extraordinary; beyond normal", example: "A preternatural ability...", nuance: "Beyond natural" },
-  { word: "iconoclast", definition: "one who attacks cherished beliefs", example: "The iconoclast rolled their eyes.", nuance: "Challenges norms" },
-  { word: "tragicomic", definition: "both tragic and comic", example: "A tragicomic moment...", nuance: "Sad + funny" },
-  { word: "vox populi", definition: "voice of the people", example: "The vox populi was clear.", nuance: "Popular opinion" },
-  { word: "inimitable", definition: "impossible to copy", example: "Their inimitable humor...", nuance: "Unique" },
-  { word: "supplicant", definition: "one making a humble plea", example: "A supplicant begging...", nuance: "Humble requester" },
-  { word: "erstwhile", definition: "former; previous", example: "Their erstwhile enemy...", nuance: "Former" },
-  { word: "Pyrrhic victory", definition: "a costly victory", example: "A Pyrrhic victory...", nuance: "Win that hurts you" },
-  { word: "boondoggle", definition: "wasteful project", example: "A glorious boondoggle...", nuance: "Wasteful" },
-  { word: "fastidious", definition: "very careful or picky", example: "A fastidious list...", nuance: "Detail‑oriented" },
-  { word: "perfunctory", definition: "done with little effort", example: "A perfunctory thanks...", nuance: "Half‑hearted" },
-  { word: "dour", definition: "stern, joyless", example: "The dour guard...", nuance: "Gloomy" },
-  { word: "nihilism", definition: "belief life is meaningless", example: "He fell into nihilism...", nuance: "Meaninglessness" }
-];
-
-/* ===========================
-   GAME STATE
-   =========================== */
-let xp = 0;
-let streak = 0;
-let questionNumber = 1;
-let currentQuestion = null;
-let questionLocked = false;
-
-let goForGold = false;
-let goldCooldown = 0; // NEW — counts down from 3
-
-const BASE_XP = 100;
-const GOLD_MULTIPLIER = 2;
-
-/* ===========================
-   DOM ELEMENTS
-   =========================== */
-const xpDisplay = document.getElementById("xpDisplay");
-const streakDisplay = document.getElementById("streakDisplay");
-const questionCounter = document.getElementById("questionCounter");
-const modeBadge = document.getElementById("modeBadge");
-const questionArea = document.getElementById("questionArea");
-const answerArea = document.getElementById("answerArea");
-const feedbackArea = document.getElementById("feedbackArea");
-const submitButton = document.getElementById("submitButton");
-const nextButton = document.getElementById("nextButton");
-const goldToggleButton = document.getElementById("goldToggleButton");
-
-/* ===========================
-   UTILITIES
-   =========================== */
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-function normalize(t) {
-  return t.trim().toLowerCase();
-}
-
-function updateStats() {
-  xpDisplay.textContent = xp;
-  streakDisplay.textContent = streak;
-  questionCounter.textContent = questionNumber;
-}
-
-/* ===========================
-   GOLD MODE + COOLDOWN
-   =========================== */
-function updateGoldUI() {
-  if (goldCooldown > 0) {
-    goldToggleButton.classList.add("off");
-    goldToggleButton.textContent = `Gold Cooldown: ${goldCooldown}`;
-    modeBadge.textContent = "Gold: COOLDOWN";
-    modeBadge.classList.add("gold-off");
-    return;
-  }
-
-  if (goForGold) {
-    goldToggleButton.classList.remove("off");
-    goldToggleButton.textContent = "Gold: ON";
-    modeBadge.textContent = "Gold: ON";
-    modeBadge.classList.remove("gold-off");
-  } else {
-    goldToggleButton.classList.add("off");
-    goldToggleButton.textContent = "Go for the Gold";
-    modeBadge.textContent = "Gold: OFF";
-    modeBadge.classList.add("gold-off");
-  }
-}
-
-goldToggleButton.addEventListener("click", () => {
-  if (questionLocked) return;
-  if (goldCooldown > 0) return;
-
-  goForGold = !goForGold;
-  updateGoldUI();
-});
-
-/* ===========================
-   QUESTION GENERATION
-   =========================== */
-function generateQuestion() {
-  questionLocked = false;
-  submitButton.disabled = false;
-  nextButton.disabled = true;
-  feedbackArea.innerHTML = "";
-
-  const qType = shuffle(["definitionWord", "fillBlank", "nuance", "termToDefinition"])[0];
-  const item = VOCAB[Math.floor(Math.random() * VOCAB.length)];
-
-  currentQuestion = { type: qType, item, selected: null };
-
-  if (qType === "definitionWord") renderDefinitionQuestion(item);
-  if (qType === "fillBlank") renderFillBlank(item);
-  if (qType === "nuance") renderNuance(item);
-  if (qType === "termToDefinition") renderTermToDefinition(item);
-
-  updateGoldUI();
-}
-
-/* ===========================
-   QUESTION TYPES
-   =========================== */
-function renderDefinitionQuestion(item) {
-  const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
-  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
-
-  questionArea.innerHTML = `
-    <div class="question-main">Which word matches this definition?</div>
-    <div>${item.definition}</div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="options-grid">
-      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
-    </div>
-  `;
-
-  answerArea.querySelectorAll(".option-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (questionLocked) return;
-      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      currentQuestion.selected = btn.dataset.opt;
-    });
-  });
-}
-
-function renderFillBlank(item) {
-  const masked = item.word.replace(/[A-Za-z]/g, "*");
-  const sentence = item.example.replace(new RegExp(item.word, "i"), `<span class="blank">${masked}</span>`);
-
-  questionArea.innerHTML = `
-    <div class="question-main">Fill in the missing word</div>
-    <div class="fill-blank">${sentence}</div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="input-row">
-      <input id="fillInput" type="text" placeholder="Type the word…" />
-    </div>
-  `;
-}
-
-function renderNuance(item) {
-  const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
-  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
-
-  questionArea.innerHTML = `
-    <div class="question-main">Which word fits this description?</div>
-    <div>${item.nuance}</div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="options-grid">
-      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
-    </div>
-  `;
-
-  answerArea.querySelectorAll(".option-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (questionLocked) return;
-      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      currentQuestion.selected = btn.dataset.opt;
-    });
-  });
-}
-
 function renderTermToDefinition(item) {
   const wrong = shuffle(VOCAB.filter(v => v.word !== item.word)).slice(0, 3);
   const options = shuffle([item.definition, ...wrong.map(w => w.definition)]);
@@ -442,4 +7,107 @@ function renderTermToDefinition(item) {
   `;
 
   answerArea.innerHTML = `
-    <div class="options-grid
+    <div class="options-grid">
+      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+    </div>
+  `;
+
+  answerArea.querySelectorAll(".option-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (questionLocked) return;
+      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      currentQuestion.selected = btn.dataset.opt;
+    });
+  });
+}
+
+/* ===========================
+   CHECK ANSWER
+   =========================== */
+function checkAnswer() {
+  if (questionLocked) return;
+
+  const item = currentQuestion.item;
+  let userAnswer = null;
+  let correct = false;
+
+  if (currentQuestion.type === "fillBlank") {
+    const input = document.getElementById("fillInput");
+    if (!input.value.trim()) return;
+    userAnswer = normalize(input.value);
+    correct = userAnswer === normalize(item.word);
+  } else if (currentQuestion.type === "termToDefinition") {
+    userAnswer = currentQuestion.selected;
+    correct = normalize(userAnswer) === normalize(item.definition);
+  } else {
+    userAnswer = currentQuestion.selected;
+    correct = normalize(userAnswer) === normalize(item.word);
+  }
+
+  questionLocked = true;
+  submitButton.disabled = true;
+  nextButton.disabled = false;
+
+  let xpChange = 0;
+
+  if (correct) {
+    xpChange = goForGold ? BASE_XP * GOLD_MULTIPLIER : BASE_XP;
+    xp += xpChange;
+    streak++;
+
+    feedbackArea.innerHTML = `
+      <div class="feedback correct">
+        <strong>Correct!</strong><br>
+        Word: <span class="word-highlight">${item.word}</span><br>
+        Definition: ${item.definition}<br>
+        Example: "${item.example}"<br>
+        +${xpChange} XP
+      </div>
+    `;
+  } else {
+    xpChange = goForGold ? -BASE_XP * GOLD_MULTIPLIER : 0;
+    xp = Math.max(0, xp + xpChange);
+    streak = 0;
+
+    feedbackArea.innerHTML = `
+      <div class="feedback incorrect">
+        <strong>Incorrect.</strong><br>
+        Correct word: <span class="word-highlight">${item.word}</span><br>
+        Definition: ${item.definition}<br>
+        Example: "${item.example}"<br>
+        ${xpChange < 0 ? `${xpChange} XP (Gold penalty)` : ""}
+      </div>
+    `;
+  }
+
+  // Gold cooldown logic
+  if (goForGold) {
+    goForGold = false;
+    goldCooldown = 3;
+  }
+
+  updateGoldUI();
+  updateStats();
+}
+
+/* ===========================
+   BUTTONS
+   =========================== */
+submitButton.addEventListener("click", checkAnswer);
+
+nextButton.addEventListener("click", () => {
+  if (!questionLocked) return;
+
+  questionNumber++;
+  if (goldCooldown > 0) goldCooldown--;
+  updateGoldUI();
+  updateStats();
+  generateQuestion();
+});
+
+/* ===========================
+   START GAME
+   =========================== */
+updateStats();
+generateQuestion();
