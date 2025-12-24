@@ -75,7 +75,6 @@ function updateGoldUI() {
 goldToggleButton.addEventListener("click", () => {
   if (questionLocked) return;
   if (goldCooldown > 0) return;
-
   goForGold = !goForGold;
   updateGoldUI();
 });
@@ -85,12 +84,10 @@ goldToggleButton.addEventListener("click", () => {
    =========================== */
 function getRandomWord() {
   const available = VOCAB.filter(v => !usedWords.includes(v.word));
-
   if (available.length === 0) {
     alert("You completed ALL vocab words! No repeats ever.");
     return null;
   }
-
   const chosen = available[Math.floor(Math.random() * available.length)];
   usedWords.push(chosen.word);
   return chosen;
@@ -136,7 +133,15 @@ function renderDefinitionQuestion(item) {
 
   answerArea.innerHTML = `
     <div class="options-grid">
-      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+      ${options
+        .map(
+          (o, i) => `
+            <button class="option-btn" data-opt="${o}">
+              ${String.fromCharCode(65 + i)}. ${o}
+            </button>
+          `
+        )
+        .join("")}
     </div>
   `;
 
@@ -157,7 +162,10 @@ function renderFillBlank(item) {
     <div class="question-main">Fill in the missing word</div>
     <div class="fill-blank">
       <strong>Definition:</strong> ${item.definition}<br><br>
-      Example: ${item.example.replace(new RegExp(item.word, "i"), `<span class="blank">${masked}</span>`)}
+      Example: ${item.example.replace(
+        new RegExp(item.word, "i"),
+        `<span class="blank">${masked}</span>`
+      )}
     </div>
   `;
 
@@ -182,7 +190,15 @@ function renderNuance(item) {
 
   answerArea.innerHTML = `
     <div class="options-grid">
-      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+      ${options
+        .map(
+          (o, i) => `
+            <button class="option-btn" data-opt="${o}">
+              ${String.fromCharCode(65 + i)}. ${o}
+            </button>
+          `
+        )
+        .join("")}
     </div>
   `;
 
@@ -245,14 +261,12 @@ function checkAnswer() {
 
   if (currentQuestion.type === "fillBlank") {
     const input = document.getElementById("fillInput");
-    if (!input.value.trim()) return;
+    if (!input || !input.value.trim()) return;
     userAnswer = normalize(input.value);
     correct = userAnswer === normalize(item.word);
-
   } else if (currentQuestion.type === "termToDefinition") {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.definition);
-
   } else {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.word);
@@ -323,4 +337,3 @@ nextButton.addEventListener("click", () => {
    =========================== */
 updateStats();
 generateQuestion();
-
