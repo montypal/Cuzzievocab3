@@ -10,7 +10,7 @@ let questionLocked = false;
 let goForGold = false;
 let goldCooldown = 0;
 
-// NEW: Track used words so they NEVER repeat
+// Track used words so they NEVER repeat
 let usedWords = [];
 
 const BASE_XP = 100;
@@ -264,9 +264,11 @@ function checkAnswer() {
     if (!input || !input.value.trim()) return;
     userAnswer = normalize(input.value);
     correct = userAnswer === normalize(item.word);
+
   } else if (currentQuestion.type === "termToDefinition") {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.definition);
+
   } else {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.word);
@@ -337,3 +339,5 @@ nextButton.addEventListener("click", () => {
    =========================== */
 updateStats();
 generateQuestion();
+
+
