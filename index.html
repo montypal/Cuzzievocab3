@@ -3,12 +3,22 @@ function renderTermToDefinition(item) {
   const options = shuffle([item.definition, ...wrong.map(w => w.definition)]);
 
   questionArea.innerHTML = `
-    <div class="question-main">What is the definition of <span class="word-highlight">${item.word}</span>?</div>
+    <div class="question-main">
+      What is the definition of <span class="word-highlight">${item.word}</span>?
+    </div>
   `;
 
   answerArea.innerHTML = `
     <div class="options-grid">
-      ${options.map(o => `<button class="option-btn" data-opt="${o}">${o}</button>`).join("")}
+      ${options
+        .map(
+          (o, i) => `
+            <button class="option-btn" data-opt="${o}">
+              ${String.fromCharCode(65 + i)}. ${o}
+            </button>
+          `
+        )
+        .join("")}
     </div>
   `;
 
@@ -37,9 +47,11 @@ function checkAnswer() {
     if (!input.value.trim()) return;
     userAnswer = normalize(input.value);
     correct = userAnswer === normalize(item.word);
+
   } else if (currentQuestion.type === "termToDefinition") {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.definition);
+
   } else {
     userAnswer = currentQuestion.selected;
     correct = normalize(userAnswer) === normalize(item.word);
