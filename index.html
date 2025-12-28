@@ -1,343 +1,804 @@
-/* ===========================
-   GAME STATE
-   =========================== */
-let xp = 0;
-let streak = 0;
-let questionNumber = 1;
-let currentQuestion = null;
-let questionLocked = false;
-
-let goForGold = false;
-let goldCooldown = 0;
-
-// Track used words so they NEVER repeat
-let usedWords = [];
-
-const BASE_XP = 100;
-const GOLD_MULTIPLIER = 2;
-
-/* ===========================
-   DOM ELEMENTS
-   =========================== */
-const xpDisplay = document.getElementById("xpDisplay");
-const streakDisplay = document.getElementById("streakDisplay");
-const questionCounter = document.getElementById("questionCounter");
-const modeBadge = document.getElementById("modeBadge");
-const questionArea = document.getElementById("questionArea");
-const answerArea = document.getElementById("answerArea");
-const feedbackArea = document.getElementById("feedbackArea");
-const submitButton = document.getElementById("submitButton");
-const nextButton = document.getElementById("nextButton");
-const goldToggleButton = document.getElementById("goldToggleButton");
-
-/* ===========================
-   UTILITIES
-   =========================== */
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vocab Showdown Deluxe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:radial-gradient(circle at top,#15152d,#050510);
+  color:#f5f5ff;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-
-function normalize(t) {
-  return t.trim().toLowerCase();
+#app{
+  max-width:960px;
+  margin:0 auto;
+  padding:16px 12px 32px;
 }
-
-function updateStats() {
-  xpDisplay.textContent = xp;
-  streakDisplay.textContent = streak;
-  questionCounter.textContent = questionNumber;
+h1{
+  text-align:center;
+  font-size:32px;
+  letter-spacing:2px;
 }
-
-/* ===========================
-   GOLD MODE + COOLDOWN
-   =========================== */
-function updateGoldUI() {
-  if (goldCooldown > 0) {
-    goldToggleButton.classList.add("off");
-    goldToggleButton.textContent = `Cooldown: ${goldCooldown}`;
-    modeBadge.textContent = "Gold: COOLDOWN";
-    modeBadge.classList.add("gold-off");
-    return;
+h2{
+  text-align:center;
+  font-size:14px;
+  color:#c6c6ff;
+  margin-top:4px;
+}
+.top-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+.panel{
+  background:rgba(8,8,35,0.96);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 0 30px rgba(0,0,0,0.6);
+  flex:2;
+  min-width:250px;
+}
+.sidebar{
+  background:rgba(8,8,35,0.96);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 0 25px rgba(0,0,0,0.6);
+  flex:1;
+  min-width:220px;
+}
+#statusBar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+.status-box{
+  flex:1;
+  min-width:120px;
+  background:#151538;
+  border-radius:10px;
+  padding:8px 10px;
+}
+.status-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#a5a5ff;
+}
+.status-value{
+  font-size:18px;
+  font-weight:600;
+}
+#goForGoldBtn{
+  flex:1.1;
+  min-width:140px;
+  background:linear-gradient(120deg,#ffd700,#ffae00);
+  border:none;
+  border-radius:12px;
+  padding:9px 10px;
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:#2b1f00;
+  cursor:pointer;
+  box-shadow:0 0 14px rgba(255,215,0,0.8);
+  transition:transform .1s,box-shadow .1s,filter .1s;
+}
+#goForGoldBtn.disabled{
+  background:linear-gradient(120deg,#6d6123,#544719);
+  color:#d6d0a4;
+  cursor:not-allowed;
+  box-shadow:none;
+  filter:grayscale(.35);
+}
+#goForGoldBtn:hover:not(.disabled){
+  transform:translateY(-1px);
+  box-shadow:0 0 18px rgba(255,215,0,1);
+}
+#difficultyBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  gap:8px;
+}
+#difficultySelect{
+  background:#12122a;
+  color:#f5f5ff;
+  border-radius:8px;
+  border:1px solid #34345a;
+  padding:4px 8px;
+  font-size:13px;
+}
+#questionHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:10px;
+}
+#questionNumber{
+  font-size:15px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#bdbdff;
+}
+#questionTypeBadge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#1e293b;
+  color:#facc15;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+#questionText{
+  font-size:18px;
+  line-height:1.4;
+  margin-bottom:12px;
+}
+#maskedWord{
+  font-family:"SF Mono","Consolas",monospace;
+  color:#facc15;
+}
+#choices{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.choice-btn{
+  border-radius:10px;
+  border:1px solid #30305a;
+  background:linear-gradient(120deg,#111125,#151536);
+  padding:9px 10px;
+  font-size:14px;
+  text-align:left;
+  color:#f5f5ff;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  transition:background .1s,border-color .1s,transform .08s,box-shadow .12s;
+}
+.choice-btn:hover{
+  background:#1b1b3a;
+  transform:translateY(-1px);
+  box-shadow:0 0 8px rgba(0,0,0,0.6);
+}
+.choice-badge{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#22224a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+}
+.choice-text{
+  flex:1;
+}
+.choice-btn.correct{
+  border-color:#4ade80;
+  background:rgba(22,163,74,0.15);
+}
+.choice-btn.incorrect{
+  border-color:#fb7185;
+  background:rgba(248,113,113,0.15);
+}
+#feedback{
+  margin-top:10px;
+  font-size:14px;
+  line-height:1.35;
+  border-radius:10px;
+  padding:8px 10px;
+}
+#feedback.correct{
+  background:rgba(22,163,74,0.18);
+  border:1px solid #4ade80;
+}
+#feedback.incorrect{
+  background:rgba(248,113,113,0.18);
+  border:1px solid #fb7185;
+}
+#controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:10px;
+  gap:10px;
+}
+#xpDelta{
+  font-size:13px;
+}
+#nextBtn{
+  margin-left:auto;
+  background:#3b82f6;
+  color:#f5f5ff;
+  border:none;
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  cursor:pointer;
+  transition:background .12s,transform .08s,box-shadow .1s;
+}
+#nextBtn:hover{
+  background:#2563eb;
+  transform:translateY(-1px);
+  box-shadow:0 0 10px rgba(37,99,235,0.8);
+}
+#summary{
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.4;
+}
+#restartBtn{
+  margin-top:8px;
+  background:#22c55e;
+  color:#041016;
+  border:none;
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  cursor:pointer;
+}
+#restartBtn:hover{
+  background:#16a34a;
+}
+.sidebar-section{
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(70,70,120,0.5);
+}
+.sidebar-title{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#a5a5ff;
+  margin-bottom:4px;
+}
+#leaderboardList{
+  list-style:none;
+  font-size:13px;
+}
+#leaderboardList li{
+  padding:3px 0;
+}
+.badge{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:999px;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-left:4px;
+}
+.badge-gold{background:#facc15;color:#3b1f00;}
+.badge-silver{background:#e5e7eb;color:#111827;}
+.badge-bronze{background:#f97316;color:#111827;}
+#bossBar{
+  font-size:13px;
+}
+#bossQuestionTag{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:999px;
+  background:#7c2d12;
+  color:#fee2e2;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-left:4px;
+}
+@keyframes flash-correct{
+  0%{box-shadow:0 0 0 rgba(34,197,94,0.0);}
+  50%{box-shadow:0 0 20px rgba(34,197,94,0.8);}
+  100%{box-shadow:0 0 0 rgba(34,197,94,0.0);}
+}
+@keyframes flash-wrong{
+  0%{box-shadow:0 0 0 rgba(239,68,68,0.0);}
+  50%{box-shadow:0 0 20px rgba(239,68,68,0.8);}
+  100%{box-shadow:0 0 0 rgba(239,68,68,0.0);}
+}
+.flash-correct{
+  animation:flash-correct .35s ease-out;
+}
+.flash-wrong{
+  animation:flash-wrong .35s ease-out;
+}
+@media(max-width:720px){
+  .top-bar{
+    flex-direction:column;
   }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Vocab Showdown Deluxe</h1>
+  <h2>Stack XP, dodge traps, and chase the zenith of word mastery.</h2>
 
-  if (goForGold) {
-    goldToggleButton.classList.remove("off");
-    goldToggleButton.textContent = "Gold: ON";
-    modeBadge.textContent = "Gold: ON";
-    modeBadge.classList.remove("gold-off");
-  } else {
-    goldToggleButton.classList.add("off");
-    goldToggleButton.textContent = "Go for the Gold";
-    modeBadge.textContent = "Gold: OFF";
-    modeBadge.classList.add("gold-off");
-  }
+  <div class="top-bar">
+    <div class="panel">
+      <div id="difficultyBar">
+        <div>
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#a5a5ff;">Difficulty</span>
+          <select id="difficultySelect">
+            <option value="easy">Easy (4 choices)</option>
+            <option value="medium" selected>Medium (5 choices)</option>
+            <option value="hard">Hard (6 choices)</option>
+          </select>
+        </div>
+        <div id="bossBar">Boss round every 10 questions<span id="bossQuestionTag" style="display:none;">Boss</span></div>
+      </div>
+
+      <div id="statusBar">
+        <div class="status-box">
+          <div class="status-label">XP</div>
+          <div class="status-value" id="xpDisplay">0</div>
+        </div>
+        <div class="status-box">
+          <div class="status-label">Question</div>
+          <div class="status-value" id="questionCountDisplay">1 / 1</div>
+        </div>
+        <div class="status-box">
+          <div class="status-label">Streak</div>
+          <div class="status-value" id="streakDisplay">0</div>
+        </div>
+        <div class="status-box">
+          <div class="status-label">Gold Cooldown</div>
+          <div class="status-value" id="cooldownDisplay">Ready</div>
+        </div>
+        <button id="goForGoldBtn">Go For The Gold</button>
+      </div>
+
+      <div id="questionHeader">
+        <div id="questionNumber">Question 1</div>
+        <div id="questionTypeBadge"></div>
+      </div>
+
+      <div id="questionText"></div>
+      <div id="choices"></div>
+      <div id="feedback"></div>
+
+      <div id="controls">
+        <div id="xpDelta"></div>
+        <button id="nextBtn">Next</button>
+      </div>
+
+      <div id="summary"></div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Leaderboard</div>
+        <ul id="leaderboardList"></ul>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Session Stats</div>
+        <div id="statsText" style="font-size:13px;"></div>
+      </div>
+      <div>
+        <div class="sidebar-title">Hints</div>
+        <div style="font-size:12px;line-height:1.4;">
+          Boss rounds give extra XP but punish mistakes hard. Streaks amplify your gains. Gold doubles the risk and reward.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="soundCorrect" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+<audio id="soundWrong" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+<audio id="soundGold" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+
+<script>
+const vocab=[
+"Axiomatic","Anfractuous","Avarice","Apocryphal","Avant garde","Abstruse","Anathema",
+"Cassandra","Carpe diem","Conflagration","Circumvent","Convivial","Corpulent","Cacophony",
+"Clandestine","Despot","Dour","Discreet","Discrepancy","Fastidious","Fetid","Fillip",
+"Fractured","Funereal","Garrulous","Hyperbole","Iconoclast","Inimitable","Infamous",
+"Erstwhile","Esoteric","Ephemeral","Equanimity","Intransigent","Ignominious",
+"Incontrovertible","Irreverent","Lionize","Largesse","Lingua franca","Lugubrious",
+"Malfeasance","Macabre","Mendacious","Maelstrom","Nihilism","Neophyte","Non sequitur",
+"Occam’s razor","Ostracize","Pollyannaish","Perfunctory","Preternatural","Pyrrhic victory",
+"Parsimonious","Potentate","Quandary","Rebuke","Rancor","Sagacious","Supplicant","Secular",
+"Schadenfreude","Soliloquy","Sacrosanct","Tragicomic","Truculent","Ubiquitous","Votive",
+"Vox populi","Vernacular","Zeitgeist","Zealot","Zenith"
+];
+
+function def(w){
+  const d={
+    "Axiomatic":"Self-evident or universally accepted as true.",
+    "Anfractuous":"Full of twists and turns; intricate.",
+    "Avarice":"Extreme greed for wealth or material gain.",
+    "Apocryphal":"Of doubtful authenticity, though widely circulated.",
+    "Avant garde":"Radically new and experimental, especially in the arts.",
+    "Abstruse":"Difficult to understand; obscure.",
+    "Anathema":"Something or someone intensely disliked or shunned.",
+    "Cassandra":"A person whose valid warnings are ignored.",
+    "Carpe diem":"Seize the day; make the most of the present moment.",
+    "Conflagration":"A large, destructive fire or intense conflict.",
+    "Circumvent":"To find a way around an obstacle or rule.",
+    "Convivial":"Cheerful, friendly, and enjoyable; fond of feasting and socializing.",
+    "Corpulent":"Excessively fat; having a large, bulky body.",
+    "Cacophony":"Harsh, jarring mixture of sounds.",
+    "Clandestine":"Secret, hidden, or done in concealment.",
+    "Despot":"A ruler with absolute power, often ruling oppressively.",
+    "Dour":"Relentlessly severe, stern, or gloomy.",
+    "Discreet":"Careful and tactful in speech or action to avoid offense or attention.",
+    "Discrepancy":"A lack of compatibility or similarity between facts.",
+    "Fastidious":"Very attentive to detail; hard to please.",
+    "Fetid":"Smelling extremely unpleasant.",
+    "Fillip":"A stimulus or boost to activity or energy.",
+    "Fractured":"Broken, cracked, or damaged; not whole.",
+    "Funereal":"Gloomy, solemn, or appropriate to a funeral.",
+    "Garrulous":"Excessively talkative, especially on trivial matters.",
+    "Hyperbole":"Deliberate and obvious exaggeration for effect.",
+    "Iconoclast":"One who attacks cherished beliefs or institutions.",
+    "Inimitable":"So good or unusual as to be impossible to copy.",
+    "Infamous":"Well known for some bad quality or deed.",
+    "Erstwhile":"Former; of times past.",
+    "Esoteric":"Intended for or understood by only a small, specialized group.",
+    "Ephemeral":"Lasting for a very short time; fleeting.",
+    "Equanimity":"Calmness and composure, especially in difficult situations.",
+    "Intransigent":"Unwilling or refusing to change one’s views.",
+    "Ignominious":"Deserving or causing public disgrace or shame.",
+    "Incontrovertible":"Impossible to deny or dispute.",
+    "Irreverent":"Showing a lack of respect for things usually taken seriously.",
+    "Lionize":"To treat someone as a celebrity or hero.",
+    "Largesse":"Generous giving of gifts, money, or kindness.",
+    "Lingua franca":"A common language used between speakers of different native tongues.",
+    "Lugubrious":"Excessively mournful, sad, or gloomy.",
+    "Malfeasance":"Wrongdoing, especially by a public official.",
+    "Macabre":"Disturbing because of involvement with death or injury.",
+    "Mendacious":"Not telling the truth; lying.",
+    "Maelstrom":"A powerful whirlpool or situation of chaos and confusion.",
+    "Nihilism":"The belief that life is meaningless and rejects moral principles.",
+    "Neophyte":"A person who is new to a subject or activity; a beginner.",
+    "Non sequitur":"A conclusion or statement that does not logically follow from what preceded it.",
+    "Occam’s razor":"The principle that the simplest explanation is usually the best.",
+    "Ostracize":"To exclude someone from a group or society.",
+    "Pollyannaish":"Unreasonably or blindly optimistic and cheerful.",
+    "Perfunctory":"Carried out with little interest, effort, or reflection.",
+    "Preternatural":"Beyond what is normal or natural.",
+    "Pyrrhic victory":"A victory that inflicts such a devastating toll that it is almost a defeat.",
+    "Parsimonious":"Unwilling to spend money or use resources; stingy.",
+    "Potentate":"A person who possesses great power or influence, especially a ruler.",
+    "Quandary":"A state of uncertainty or perplexity about what to do.",
+    "Rebuke":"To express sharp criticism or disapproval.",
+    "Rancor":"Persistent bitterness or resentfulness.",
+    "Sagacious":"Having or showing keen mental judgment and wisdom.",
+    "Supplicant":"A person who makes a humble request or plea.",
+    "Secular":"Not connected with religious or spiritual matters.",
+    "Schadenfreude":"Pleasure derived from another person’s misfortune.",
+    "Soliloquy":"Speaking one’s thoughts aloud when alone or regardless of listeners.",
+    "Sacrosanct":"Regarded as too important or valuable to be interfered with.",
+    "Tragicomic":"Containing elements of both tragedy and comedy.",
+    "Truculent":"Eager or quick to argue or fight; aggressively defiant.",
+    "Ubiquitous":"Present, appearing, or found everywhere.",
+    "Votive":"Offered or performed as a vow or in fulfillment of a vow.",
+    "Vox populi":"The voice or opinion of the majority of people.",
+    "Vernacular":"The everyday language spoken by ordinary people in a region.",
+    "Zeitgeist":"The defining spirit or mood of a particular period of history.",
+    "Zealot":"A person who is fanatical and uncompromising about their beliefs.",
+    "Zenith":"The highest point or peak of something."
+  };
+  return d[w];
 }
 
-goldToggleButton.addEventListener("click", () => {
-  if (questionLocked) return;
-  if (goldCooldown > 0) return;
-  goForGold = !goForGold;
-  updateGoldUI();
+function maskWord(w){
+  return w.replace(/[A-Za-z]/g,"*");
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function pickWrong(correct,count){
+  const pool=vocab.filter(v=>v!==correct);
+  shuffle(pool);
+  return pool.slice(0,count);
+}
+
+let questions=vocab.map(word=>{
+  const type=Math.random()<0.5?"definition":"fill";
+  return {
+    word,
+    type,
+    prompt:type==="definition" ? def(word) : "Fill in the word:",
+    masked:type==="fill" ? maskWord(word) : null
+  };
 });
+shuffle(questions);
 
-/* ===========================
-   GET RANDOM WORD (NO REPEATS)
-   =========================== */
-function getRandomWord() {
-  const available = VOCAB.filter(v => !usedWords.includes(v.word));
-  if (available.length === 0) {
-    alert("You completed ALL vocab words! No repeats ever.");
-    return null;
+let index=0;
+let xp=0;
+let streak=0;
+let answered=false;
+let goldActive=false;
+let goldCooldown=0;
+let correctCount=0;
+let bossIndices=questions.map((_,i)=>i).filter(i=>(i+1)%10===0);
+
+const xpDisplay=document.getElementById("xpDisplay");
+const questionCountDisplay=document.getElementById("questionCountDisplay");
+const cooldownDisplay=document.getElementById("cooldownDisplay");
+const streakDisplay=document.getElementById("streakDisplay");
+const goForGoldBtn=document.getElementById("goForGoldBtn");
+const questionNumber=document.getElementById("questionNumber");
+const questionTypeBadge=document.getElementById("questionTypeBadge");
+const questionText=document.getElementById("questionText");
+const choicesDiv=document.getElementById("choices");
+const feedbackDiv=document.getElementById("feedback");
+const xpDeltaDiv=document.getElementById("xpDelta");
+const nextBtn=document.getElementById("nextBtn");
+const summaryDiv=document.getElementById("summary");
+const leaderboardList=document.getElementById("leaderboardList");
+const statsText=document.getElementById("statsText");
+const difficultySelect=document.getElementById("difficultySelect");
+const bossQuestionTag=document.getElementById("bossQuestionTag");
+const soundCorrect=document.getElementById("soundCorrect");
+const soundWrong=document.getElementById("soundWrong");
+const soundGold=document.getElementById("soundGold");
+
+function baseChoices(){
+  const d=difficultySelect.value;
+  if(d==="easy")return 4;
+  if(d==="hard")return 6;
+  return 5;
+}
+
+function isBossQuestion(i){
+  return bossIndices.includes(i);
+}
+
+function updateCooldownDisplay(){
+  if(goldCooldown===0){
+    cooldownDisplay.textContent="Ready";
+    goForGoldBtn.classList.remove("disabled");
+  }else{
+    cooldownDisplay.textContent=goldCooldown+" q";
+    goForGoldBtn.classList.add("disabled");
   }
-  const chosen = available[Math.floor(Math.random() * available.length)];
-  usedWords.push(chosen.word);
-  return chosen;
 }
 
-/* ===========================
-   QUESTION GENERATION
-   =========================== */
-function generateQuestion() {
-  questionLocked = false;
-  submitButton.disabled = false;
-  nextButton.disabled = true;
-  feedbackArea.innerHTML = "";
-
-  const qType = shuffle(["definitionWord", "fillBlank", "nuance", "termToDefinition"])[0];
-  const item = getRandomWord();
-  if (!item) return;
-
-  currentQuestion = { type: qType, item, selected: null };
-
-  if (qType === "definitionWord") renderDefinitionQuestion(item);
-  if (qType === "fillBlank") renderFillBlank(item);
-  if (qType === "nuance") renderNuance(item);
-  if (qType === "termToDefinition") renderTermToDefinition(item);
-
-  updateGoldUI();
-}
-
-/* ===========================
-   QUESTION TYPES
-   =========================== */
-function renderDefinitionQuestion(item) {
-  const wrong = shuffle(
-    VOCAB.filter(v => v.word !== item.word && !usedWords.includes(v.word))
-  ).slice(0, 3);
-
-  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
-
-  questionArea.innerHTML = `
-    <div class="question-main">Which word matches this definition?</div>
-    <div>${item.definition}</div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="options-grid">
-      ${options
-        .map(
-          (o, i) => `
-            <button class="option-btn" data-opt="${o}">
-              ${String.fromCharCode(65 + i)}. ${o}
-            </button>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-
-  answerArea.querySelectorAll(".option-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (questionLocked) return;
-      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      currentQuestion.selected = btn.dataset.opt;
-    });
+function loadQuestion(){
+  answered=false;
+  goldActive=false;
+  feedbackDiv.textContent="";
+  feedbackDiv.className="";
+  xpDeltaDiv.textContent="";
+  const q=questions[index];
+  const total=questions.length;
+  questionNumber.textContent="Question "+(index+1);
+  questionCountDisplay.textContent=(index+1)+" / "+total;
+  const isDef=q.type==="definition";
+  questionTypeBadge.textContent=isDef?"Definition → Word":"Masked Word → Choice";
+  questionText.innerHTML=isDef ? q.prompt : q.prompt+"<br><br><span id='maskedWord'>"+q.masked+"</span>";
+  bossQuestionTag.style.display=isBossQuestion(index)?"inline-block":"none";
+  const numChoices=baseChoices();
+  const wrongCount=Math.max(1,numChoices-1);
+  const options=shuffle([q.word,...pickWrong(q.word,wrongCount)]);
+  choicesDiv.innerHTML="";
+  const letters=["A","B","C","D","E","F","G","H"];
+  options.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="choice-btn";
+    const b=document.createElement("div");
+    b.className="choice-badge";
+    b.textContent=letters[i]||"?";
+    const t=document.createElement("div");
+    t.className="choice-text";
+    t.textContent=opt;
+    btn.appendChild(b);
+    btn.appendChild(t);
+    btn.onclick=()=>handleChoice(opt,btn,q.word);
+    choicesDiv.appendChild(btn);
   });
-}
-
-function renderFillBlank(item) {
-  const masked = item.word.replace(/[A-Za-z]/g, "*");
-
-  questionArea.innerHTML = `
-    <div class="question-main">Fill in the missing word</div>
-    <div class="fill-blank">
-      <strong>Definition:</strong> ${item.definition}<br><br>
-      Example: ${item.example.replace(
-        new RegExp(item.word, "i"),
-        `<span class="blank">${masked}</span>`
-      )}
-    </div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="input-row">
-      <input id="fillInput" type="text" placeholder="Type the word…" />
-    </div>
-  `;
-}
-
-function renderNuance(item) {
-  const wrong = shuffle(
-    VOCAB.filter(v => v.word !== item.word && !usedWords.includes(v.word))
-  ).slice(0, 3);
-
-  const options = shuffle([item.word, ...wrong.map(w => w.word)]);
-
-  questionArea.innerHTML = `
-    <div class="question-main">Which word fits this description?</div>
-    <div>${item.nuance}</div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="options-grid">
-      ${options
-        .map(
-          (o, i) => `
-            <button class="option-btn" data-opt="${o}">
-              ${String.fromCharCode(65 + i)}. ${o}
-            </button>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-
-  answerArea.querySelectorAll(".option-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (questionLocked) return;
-      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      currentQuestion.selected = btn.dataset.opt;
-    });
-  });
-}
-
-function renderTermToDefinition(item) {
-  const wrong = shuffle(
-    VOCAB.filter(v => v.word !== item.word && !usedWords.includes(v.word))
-  ).slice(0, 3);
-
-  const options = shuffle([item.definition, ...wrong.map(w => w.definition)]);
-
-  questionArea.innerHTML = `
-    <div class="question-main">
-      What is the definition of <span class="word-highlight">${item.word}</span>?
-    </div>
-  `;
-
-  answerArea.innerHTML = `
-    <div class="options-grid">
-      ${options
-        .map(
-          (o, i) => `
-            <button class="option-btn" data-opt="${o}">
-              ${String.fromCharCode(65 + i)}. ${o}
-            </button>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-
-  answerArea.querySelectorAll(".option-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (questionLocked) return;
-      answerArea.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      currentQuestion.selected = btn.dataset.opt;
-    });
-  });
-}
-
-/* ===========================
-   CHECK ANSWER
-   =========================== */
-function checkAnswer() {
-  if (questionLocked) return;
-
-  const item = currentQuestion.item;
-  let userAnswer = null;
-  let correct = false;
-
-  if (currentQuestion.type === "fillBlank") {
-    const input = document.getElementById("fillInput");
-    if (!input || !input.value.trim()) return;
-    userAnswer = normalize(input.value);
-    correct = userAnswer === normalize(item.word);
-
-  } else if (currentQuestion.type === "termToDefinition") {
-    userAnswer = currentQuestion.selected;
-    correct = normalize(userAnswer) === normalize(item.definition);
-
-  } else {
-    userAnswer = currentQuestion.selected;
-    correct = normalize(userAnswer) === normalize(item.word);
+  if(index===total-1){
+    nextBtn.textContent="Finish";
+  }else{
+    nextBtn.textContent="Next";
   }
+  updateCooldownDisplay();
+  updateStats();
+}
 
-  questionLocked = true;
-  submitButton.disabled = true;
-  nextButton.disabled = false;
-
-  let xpChange = 0;
-
-  if (correct) {
-    xpChange = goForGold ? BASE_XP * GOLD_MULTIPLIER : BASE_XP;
-    xp += xpChange;
+function handleChoice(choice,btn,correctWord){
+  if(answered)return;
+  answered=true;
+  const buttons=document.querySelectorAll(".choice-btn");
+  buttons.forEach(b=>{
+    const word=b.querySelector(".choice-text").textContent;
+    if(word===correctWord)b.classList.add("correct");
+    if(word===choice && choice!==correctWord)b.classList.add("incorrect");
+  });
+  const boss=isBossQuestion(index);
+  let baseXp=100;
+  if(boss)baseXp=200;
+  let mult=1;
+  if(streak>=3)mult=1.25;
+  if(streak>=6)mult=1.5;
+  let delta=0;
+  if(choice===correctWord){
+    correctCount++;
     streak++;
-
-    feedbackArea.innerHTML = `
-      <div class="feedback correct">
-        <strong>Correct!</strong><br>
-        Word: <span class="word-highlight">${item.word}</span><br>
-        Definition: ${item.definition}<br>
-        Example: "${item.example}"<br>
-        +${xpChange} XP
-      </div>
-    `;
-  } else {
-    xpChange = goForGold ? -BASE_XP * GOLD_MULTIPLIER : 0;
-    xp = Math.max(0, xp + xpChange);
-    streak = 0;
-
-    feedbackArea.innerHTML = `
-      <div class="feedback incorrect">
-        <strong>Incorrect.</strong><br>
-        Correct word: <span class="word-highlight">${item.word}</span><br>
-        Definition: ${item.definition}<br>
-        Example: "${item.example}"<br>
-        ${xpChange < 0 ? `${xpChange} XP (Gold penalty)` : ""}
-      </div>
-    `;
+    let gain=baseXp;
+    if(goldActive){
+      gain*=2;
+      goldCooldown=5;
+      try{soundGold.play().catch(()=>{});}catch(e){}
+    }else{
+      try{soundCorrect.play().catch(()=>{});}catch(e){}
+    }
+    gain=Math.round(gain*mult);
+    delta=gain;
+    xp+=gain;
+    feedbackDiv.className="correct";
+    feedbackDiv.textContent="Correct. "+def(correctWord)+" Streak bonus: x"+mult.toFixed(2)+".";
+    document.querySelector(".panel").classList.add("flash-correct");
+    setTimeout(()=>document.querySelector(".panel").classList.remove("flash-correct"),350);
+  }else{
+    streak=0;
+    let loss=0;
+    if(goldActive){
+      loss=baseXp*2;
+      goldCooldown=5;
+    }else if(boss){
+      loss=baseXp;
+    }
+    delta=-loss;
+    xp+=delta;
+    if(xp<0)xp=0;
+    feedbackDiv.className="incorrect";
+    feedbackDiv.textContent="Incorrect. The correct word was \""+correctWord+"\". "+def(correctWord);
+    try{soundWrong.play().catch(()=>{});}catch(e){}
+    document.querySelector(".panel").classList.add("flash-wrong");
+    setTimeout(()=>document.querySelector(".panel").classList.remove("flash-wrong"),350);
   }
-
-  if (goForGold) {
-    goForGold = false;
-    goldCooldown = 3;
+  xpDisplay.textContent=Math.round(xp);
+  streakDisplay.textContent=streak;
+  if(delta>0){
+    xpDeltaDiv.textContent="+"+delta+" XP";
+  }else if(delta<0){
+    xpDeltaDiv.textContent=delta+" XP";
+  }else{
+    xpDeltaDiv.textContent="0 XP";
   }
-
-  updateGoldUI();
+  if(goldActive){
+    goldActive=false;
+  }
+  updateCooldownDisplay();
   updateStats();
 }
 
-/* ===========================
-   BUTTONS
-   =========================== */
-submitButton.addEventListener("click", checkAnswer);
+goForGoldBtn.onclick=()=>{
+  if(answered)return;
+  if(goldCooldown>0)return;
+  goldActive=true;
+  try{soundGold.play().catch(()=>{});}catch(e){}
+};
 
-nextButton.addEventListener("click", () => {
-  if (!questionLocked) return;
+nextBtn.onclick=()=>{
+  if(!answered)return;
+  if(goldCooldown>0)goldCooldown--;
+  if(index<questions.length-1){
+    index++;
+    loadQuestion();
+  }else{
+    finishGame();
+  }
+};
 
-  questionNumber++;
-  if (goldCooldown > 0) goldCooldown--;
-  updateGoldUI();
+difficultySelect.onchange=()=>{
+  index=0;
+  xp=0;
+  streak=0;
+  answered=false;
+  goldActive=false;
+  goldCooldown=0;
+  correctCount=0;
+  xpDisplay.textContent="0";
+  streakDisplay.textContent="0";
+  summaryDiv.textContent="";
+  nextBtn.textContent="Next";
+  loadQuestion();
+};
+
+function updateStats(){
+  const total=index+1;
+  const accuracy=total>0?Math.round((correctCount/total)*100):0;
+  statsText.textContent=
+    "Accuracy: "+accuracy+"% | Correct: "+correctCount+" / "+total+
+    " | Streak: "+streak;
+}
+
+function computeTitle(finalXp){
+  if(finalXp>=12000)return"Lexical Potentate";
+  if(finalXp>=9000)return"Zealous Iconoclast";
+  if(finalXp>=6000)return"Sagacious Virtuoso";
+  if(finalXp>=3500)return"Convivial Wordsmith";
+  if(finalXp>=1500)return"Nascent Neophyte";
+  return"Vernacular Voyager";
+}
+
+function loadLeaderboard(){
+  const stored=localStorage.getItem("vocabShowdownLeaderboard");
+  return stored?JSON.parse(stored):[];
+}
+
+function saveLeaderboard(lb){
+  localStorage.setItem("vocabShowdownLeaderboard",JSON.stringify(lb));
+}
+
+function renderLeaderboard(){
+  const lb=loadLeaderboard().sort((a,b)=>b.xp-a.xp).slice(0,5);
+  leaderboardList.innerHTML="";
+  lb.forEach((entry,i)=>{
+    const li=document.createElement("li");
+    let badgeClass="";
+    if(i===0)badgeClass="badge-gold";
+    else if(i===1)badgeClass="badge-silver";
+    else if(i===2)badgeClass="badge-bronze";
+    li.textContent=(i+1)+". "+entry.name+" — "+entry.xp+" XP";
+    if(badgeClass){
+      const span=document.createElement("span");
+      span.className="badge "+badgeClass;
+      span.textContent=entry.title;
+      li.appendChild(span);
+    }
+    leaderboardList.appendChild(li);
+  });
+}
+
+function finishGame(){
+  questionText.textContent="";
+  choicesDiv.innerHTML="";
+  feedbackDiv.textContent="";
+  xpDeltaDiv.textContent="";
+  streakDisplay.textContent=streak;
+  const total=questions.length;
+  const accuracy=Math.round((correctCount/total)*100);
+  const title=computeTitle(Math.round(xp));
+  summaryDiv.innerHTML=
+    "You reached "+Math.round(xp)+" XP with "+correctCount+
+    " correct out of "+total+" ("+accuracy+"%).<br>"+
+    "Honorific: <b>"+title+"</b>.";
+  const namePrompt=prompt("Enter a name for the leaderboard:","Player");
+  if(namePrompt){
+    const lb=loadLeaderboard();
+    lb.push({name:namePrompt.trim()||"Player",xp:Math.round(xp),title});
+    saveLeaderboard(lb);
+    renderLeaderboard();
+  }
   updateStats();
-  generateQuestion();
-});
+  nextBtn.textContent="Restart";
+  nextBtn.onclick=()=>{
+    location.reload();
+  };
+}
 
-/* ===========================
-   START GAME
-   =========================== */
-updateStats();
-generateQuestion();
-
-
+renderLeaderboard();
+loadQuestion();
+</script>
+</body>
+</html>
