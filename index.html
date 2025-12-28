@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vocab Showdown Deluxe</title>
+<title>Cuzzie Vocab Showdown</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -237,22 +237,6 @@ h2{
   font-size:14px;
   line-height:1.4;
 }
-#restartBtn{
-  margin-top:8px;
-  background:#22c55e;
-  color:#041016;
-  border:none;
-  border-radius:10px;
-  padding:8px 14px;
-  font-size:13px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  cursor:pointer;
-}
-#restartBtn:hover{
-  background:#16a34a;
-}
 .sidebar-section{
   margin-bottom:12px;
   padding-bottom:8px;
@@ -323,8 +307,8 @@ h2{
 </head>
 <body>
 <div id="app">
-  <h1>Vocab Showdown Deluxe</h1>
-  <h2>Stack XP, dodge traps, and chase the zenith of word mastery.</h2>
+  <h1>Cuzzie Vocab Showdown</h1>
+  <h2>Stack XP, go for the gold, and flex your lexicon.</h2>
 
   <div class="top-bar">
     <div class="panel">
@@ -389,24 +373,14 @@ h2{
       <div>
         <div class="sidebar-title">Hints</div>
         <div style="font-size:12px;line-height:1.4;">
-          Boss rounds give extra XP but punish mistakes hard. Streaks amplify your gains. Gold doubles the risk and reward.
+          Boss rounds give extra XP but punish mistakes. Streaks multiply gains. Go For The Gold doubles risk and reward.
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<audio id="soundCorrect" preload="auto">
-  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
-</audio>
-<audio id="soundWrong" preload="auto">
-  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
-</audio>
-<audio id="soundGold" preload="auto">
-  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
-</audio>
-
-  <script>
+<script>
 const vocab=[
 "Axiomatic","Anfractuous","Avarice","Apocryphal","Avant garde","Abstruse","Anathema",
 "Cassandra","Carpe diem","Conflagration","Circumvent","Convivial","Corpulent","Cacophony",
@@ -516,7 +490,7 @@ function shuffle(a){
 function pickWrong(correct,count){
   const pool=vocab.filter(v=>v!==correct);
   shuffle(pool);
-  return pool.slice(0,count);
+  return pool.slice(0,Math.min(count,pool.length));
 }
 
 let questions=vocab.map(word=>{
@@ -528,10 +502,9 @@ let questions=vocab.map(word=>{
     masked:type==="fill" ? maskWord(word) : null
   };
 });
-
 shuffle(questions);
 
-    let index=0;
+let index=0;
 let xp=0;
 let streak=0;
 let answered=false;
@@ -576,6 +549,14 @@ function updateCooldownDisplay(){
     cooldownDisplay.textContent=goldCooldown+" q";
     goForGoldBtn.classList.add("disabled");
   }
+}
+
+function updateStats(){
+  const total=index+1;
+  const accuracy=total>0?Math.round((correctCount/total)*100):0;
+  statsText.textContent=
+    "Accuracy: "+accuracy+"% | Correct: "+correctCount+" / "+total+
+    " | Streak: "+streak;
 }
 
 function loadQuestion(){
@@ -627,7 +608,7 @@ function loadQuestion(){
     btn.appendChild(b);
     btn.appendChild(t);
 
-    btn.onclick=()=>handleChoice(opt,btn,q.word);
+    btn.onclick=()=>handleChoice(opt,q.word);
 
     choicesDiv.appendChild(btn);
   });
@@ -638,7 +619,7 @@ function loadQuestion(){
   updateStats();
 }
 
-function handleChoice(choice,btn,correctWord){
+function handleChoice(choice,correctWord){
   if(answered)return;
   answered=true;
 
@@ -652,7 +633,6 @@ function handleChoice(choice,btn,correctWord){
   const boss=isBossQuestion(index);
   let baseXp=boss?200:100;
   let mult=1;
-
   if(streak>=3)mult=1.25;
   if(streak>=6)mult=1.5;
 
@@ -661,42 +641,38 @@ function handleChoice(choice,btn,correctWord){
   if(choice===correctWord){
     correctCount++;
     streak++;
-
     let gain=baseXp;
     if(goldActive){
       gain*=2;
       goldCooldown=5;
     }
-
     gain=Math.round(gain*mult);
     delta=gain;
     xp+=gain;
-
     feedbackDiv.className="correct";
     feedbackDiv.textContent="Correct. "+def(correctWord);
-
+    document.querySelector(".panel").classList.add("flash-correct");
+    setTimeout(()=>document.querySelector(".panel").classList.remove("flash-correct"),350);
   }else{
     streak=0;
     let loss=0;
-
     if(goldActive){
       loss=baseXp*2;
       goldCooldown=5;
     }else if(boss){
       loss=baseXp;
     }
-
     delta=-loss;
     xp+=delta;
     if(xp<0)xp=0;
-
     feedbackDiv.className="incorrect";
     feedbackDiv.textContent="Incorrect. The correct word was \""+correctWord+"\". "+def(correctWord);
+    document.querySelector(".panel").classList.add("flash-wrong");
+    setTimeout(()=>document.querySelector(".panel").classList.remove("flash-wrong"),350);
   }
 
   xpDisplay.textContent=Math.round(xp);
   streakDisplay.textContent=streak;
-
   xpDeltaDiv.textContent=delta>0?("+"+delta+" XP"):delta+" XP";
 
   goldActive=false;
@@ -712,9 +688,7 @@ goForGoldBtn.onclick=()=>{
 
 nextBtn.onclick=()=>{
   if(!answered)return;
-
   if(goldCooldown>0)goldCooldown--;
-
   if(index<questions.length-1){
     index++;
     loadQuestion();
@@ -731,23 +705,12 @@ difficultySelect.onchange=()=>{
   goldActive=false;
   goldCooldown=0;
   correctCount=0;
-
   xpDisplay.textContent="0";
   streakDisplay.textContent="0";
   summaryDiv.textContent="";
   nextBtn.textContent="Next";
-
   loadQuestion();
 };
-
-function updateStats(){
-  const total=index+1;
-  const accuracy=total>0?Math.round((correctCount/total)*100):0;
-
-  statsText.textContent=
-    "Accuracy: "+accuracy+"% | Correct: "+correctCount+" / "+total+
-    " | Streak: "+streak;
-}
 
 function computeTitle(finalXp){
   if(finalXp>=12000)return"Lexical Potentate";
@@ -759,30 +722,23 @@ function computeTitle(finalXp){
 }
 
 function loadLeaderboard(){
-  const stored=localStorage.getItem("vocabShowdownLeaderboard");
+  const stored=localStorage.getItem("cuzzieVocabLeaderboard");
   return stored?JSON.parse(stored):[];
 }
 
 function saveLeaderboard(lb){
-  localStorage.setItem("vocabShowdownLeaderboard",JSON.stringify(lb));
+  localStorage.setItem("cuzzieVocabLeaderboard",JSON.stringify(lb));
 }
 
 function renderLeaderboard(){
   const lb=loadLeaderboard().sort((a,b)=>b.xp-a.xp).slice(0,5);
   leaderboardList.innerHTML="";
-
   lb.forEach((entry,i)=>{
     const li=document.createElement("li");
     li.textContent=(i+1)+". "+entry.name+" — "+entry.xp+" XP";
-
     const span=document.createElement("span");
-    span.className="badge "+(
-      i===0?"badge-gold":
-      i===1?"badge-silver":
-      i===2?"badge-bronze":""
-    );
+    span.className="badge "+(i===0?"badge-gold":i===1?"badge-silver":i===2?"badge-bronze":"");
     span.textContent=entry.title;
-
     li.appendChild(span);
     leaderboardList.appendChild(li);
   });
@@ -793,27 +749,22 @@ function finishGame(){
   choicesDiv.innerHTML="";
   feedbackDiv.textContent="";
   xpDeltaDiv.textContent="";
-
   const total=questions.length;
   const accuracy=Math.round((correctCount/total)*100);
-  const title=computeTitle(Math.round(xp));
-
+  const finalXp=Math.round(xp);
+  const title=computeTitle(finalXp);
   summaryDiv.innerHTML=
-    "You reached "+Math.round(xp)+" XP with "+correctCount+
+    "You reached "+finalXp+" XP with "+correctCount+
     " correct out of "+total+" ("+accuracy+"%).<br>"+
     "Honorific: <b>"+title+"</b>.";
-
   const namePrompt=prompt("Enter a name for the leaderboard:","Player");
-
   if(namePrompt){
     const lb=loadLeaderboard();
-    lb.push({name:namePrompt.trim()||"Player",xp:Math.round(xp),title});
+    lb.push({name:namePrompt.trim()||"Player",xp:finalXp,title});
     saveLeaderboard(lb);
     renderLeaderboard();
   }
-
   updateStats();
-
   nextBtn.textContent="Restart";
   nextBtn.onclick=()=>location.reload();
 }
@@ -823,4 +774,3 @@ loadQuestion();
 </script>
 </body>
 </html>
-
