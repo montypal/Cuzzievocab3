@@ -406,7 +406,7 @@ h2{
   <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
 </audio>
 
-<script>
+  <script>
 const vocab=[
 "Axiomatic","Anfractuous","Avarice","Apocryphal","Avant garde","Abstruse","Anathema",
 "Cassandra","Carpe diem","Conflagration","Circumvent","Convivial","Corpulent","Cacophony",
@@ -434,29 +434,393 @@ function def(w){
     "Carpe diem":"Seize the day; make the most of the present moment.",
     "Conflagration":"A large, destructive fire or intense conflict.",
     "Circumvent":"To find a way around an obstacle or rule.",
-    "Convivial":"Cheerful, friendly, and enjoyable; fond of feasting and socializing.",
+    "Convivial":"Cheerful, friendly, and enjoyable.",
     "Corpulent":"Excessively fat; having a large, bulky body.",
     "Cacophony":"Harsh, jarring mixture of sounds.",
     "Clandestine":"Secret, hidden, or done in concealment.",
-    "Despot":"A ruler with absolute power, often ruling oppressively.",
+    "Despot":"A ruler with absolute power, often oppressive.",
     "Dour":"Relentlessly severe, stern, or gloomy.",
-    "Discreet":"Careful and tactful in speech or action to avoid offense or attention.",
-    "Discrepancy":"A lack of compatibility or similarity between facts.",
+    "Discreet":"Careful and tactful in speech or action.",
+    "Discrepancy":"A lack of compatibility between facts.",
     "Fastidious":"Very attentive to detail; hard to please.",
     "Fetid":"Smelling extremely unpleasant.",
-    "Fillip":"A stimulus or boost to activity or energy.",
-    "Fractured":"Broken, cracked, or damaged; not whole.",
-    "Funereal":"Gloomy, solemn, or appropriate to a funeral.",
-    "Garrulous":"Excessively talkative, especially on trivial matters.",
-    "Hyperbole":"Deliberate and obvious exaggeration for effect.",
-    "Iconoclast":"One who attacks cherished beliefs or institutions.",
-    "Inimitable":"So good or unusual as to be impossible to copy.",
-    "Infamous":"Well known for some bad quality or deed.",
+    "Fillip":"A stimulus or boost to activity.",
+    "Fractured":"Broken, cracked, or damaged.",
+    "Funereal":"Gloomy, solemn, or mournful.",
+    "Garrulous":"Excessively talkative.",
+    "Hyperbole":"Deliberate exaggeration for effect.",
+    "Iconoclast":"One who attacks cherished beliefs.",
+    "Inimitable":"Impossible to copy; unique.",
+    "Infamous":"Well known for a bad quality or deed.",
     "Erstwhile":"Former; of times past.",
-    "Esoteric":"Intended for or understood by only a small, specialized group.",
-    "Ephemeral":"Lasting for a very short time; fleeting.",
-    "Equanimity":"Calmness and composure, especially in difficult situations.",
-    "Intransigent":"Unwilling or refusing to change one’s views.",
-    "Ignominious":"Deserving or causing public disgrace or shame.",
+    "Esoteric":"Intended for or understood by a small group.",
+    "Ephemeral":"Lasting for a very short time.",
+    "Equanimity":"Calmness under pressure.",
+    "Intransigent":"Unwilling to compromise.",
+    "Ignominious":"Deserving public disgrace.",
     "Incontrovertible":"Impossible to deny or dispute.",
-    "
+    "Irreverent":"Showing lack of respect.",
+    "Lionize":"To treat someone as a celebrity.",
+    "Largesse":"Generous giving.",
+    "Lingua franca":"A common language between groups.",
+    "Lugubrious":"Excessively sad or gloomy.",
+    "Malfeasance":"Wrongdoing by a public official.",
+    "Macabre":"Disturbing due to involvement with death.",
+    "Mendacious":"Lying; untruthful.",
+    "Maelstrom":"A violent whirlpool or chaotic situation.",
+    "Nihilism":"Belief that life is meaningless.",
+    "Neophyte":"A beginner.",
+    "Non sequitur":"A statement that does not follow logically.",
+    "Occam’s razor":"Simplest explanation is usually best.",
+    "Ostracize":"To exclude from a group.",
+    "Pollyannaish":"Unreasonably optimistic.",
+    "Perfunctory":"Done without interest or enthusiasm.",
+    "Preternatural":"Beyond what is normal.",
+    "Pyrrhic victory":"A victory that costs too much.",
+    "Parsimonious":"Stingy; unwilling to spend money.",
+    "Potentate":"A powerful ruler.",
+    "Quandary":"A difficult dilemma.",
+    "Rebuke":"To sharply criticize.",
+    "Rancor":"Deep resentment.",
+    "Sagacious":"Wise and perceptive.",
+    "Supplicant":"One who begs humbly.",
+    "Secular":"Not religious.",
+    "Schadenfreude":"Pleasure from others’ misfortune.",
+    "Soliloquy":"Speaking thoughts aloud.",
+    "Sacrosanct":"Too important to be interfered with.",
+    "Tragicomic":"Both tragic and comic.",
+    "Truculent":"Aggressively defiant.",
+    "Ubiquitous":"Found everywhere.",
+    "Votive":"Offered in fulfillment of a vow.",
+    "Vox populi":"Voice of the people.",
+    "Vernacular":"Everyday language.",
+    "Zeitgeist":"Spirit of the time.",
+    "Zealot":"Fanatic.",
+    "Zenith":"Highest point."
+  };
+  return d[w];
+}
+
+function maskWord(w){
+  return w.replace(/[A-Za-z]/g,"*");
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function pickWrong(correct,count){
+  const pool=vocab.filter(v=>v!==correct);
+  shuffle(pool);
+  return pool.slice(0,count);
+}
+
+let questions=vocab.map(word=>{
+  const type=Math.random()<0.5?"definition":"fill";
+  return {
+    word,
+    type,
+    prompt:def(word),
+    masked:type==="fill" ? maskWord(word) : null
+  };
+});
+
+shuffle(questions);
+
+    let index=0;
+let xp=0;
+let streak=0;
+let answered=false;
+let goldActive=false;
+let goldCooldown=0;
+let correctCount=0;
+
+const xpDisplay=document.getElementById("xpDisplay");
+const questionCountDisplay=document.getElementById("questionCountDisplay");
+const cooldownDisplay=document.getElementById("cooldownDisplay");
+const streakDisplay=document.getElementById("streakDisplay");
+const goForGoldBtn=document.getElementById("goForGoldBtn");
+const questionNumber=document.getElementById("questionNumber");
+const questionTypeBadge=document.getElementById("questionTypeBadge");
+const questionText=document.getElementById("questionText");
+const choicesDiv=document.getElementById("choices");
+const feedbackDiv=document.getElementById("feedback");
+const xpDeltaDiv=document.getElementById("xpDelta");
+const nextBtn=document.getElementById("nextBtn");
+const summaryDiv=document.getElementById("summary");
+const leaderboardList=document.getElementById("leaderboardList");
+const statsText=document.getElementById("statsText");
+const difficultySelect=document.getElementById("difficultySelect");
+const bossQuestionTag=document.getElementById("bossQuestionTag");
+
+function baseChoices(){
+  const d=difficultySelect.value;
+  if(d==="easy")return 4;
+  if(d==="hard")return 6;
+  return 5;
+}
+
+function isBossQuestion(i){
+  return (i+1)%10===0;
+}
+
+function updateCooldownDisplay(){
+  if(goldCooldown===0){
+    cooldownDisplay.textContent="Ready";
+    goForGoldBtn.classList.remove("disabled");
+  }else{
+    cooldownDisplay.textContent=goldCooldown+" q";
+    goForGoldBtn.classList.add("disabled");
+  }
+}
+
+function loadQuestion(){
+  answered=false;
+  goldActive=false;
+  feedbackDiv.textContent="";
+  feedbackDiv.className="";
+  xpDeltaDiv.textContent="";
+
+  const q=questions[index];
+  const total=questions.length;
+
+  questionNumber.textContent="Question "+(index+1);
+  questionCountDisplay.textContent=(index+1)+" / "+total;
+
+  const isDef=q.type==="definition";
+
+  if(isDef){
+    questionTypeBadge.textContent="Definition → Word";
+    questionText.innerHTML=q.prompt;
+  }else{
+    questionTypeBadge.textContent="";
+    questionText.innerHTML=
+      "<b>Definition:</b> "+q.prompt+
+      "<br><br><span id='maskedWord'>"+q.masked+"</span>";
+  }
+
+  bossQuestionTag.style.display=isBossQuestion(index)?"inline-block":"none";
+
+  const numChoices=baseChoices();
+  const wrongCount=numChoices-1;
+  const options=shuffle([q.word,...pickWrong(q.word,wrongCount)]);
+
+  choicesDiv.innerHTML="";
+  const letters=["A","B","C","D","E","F"];
+
+  options.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="choice-btn";
+
+    const b=document.createElement("div");
+    b.className="choice-badge";
+    b.textContent=letters[i];
+
+    const t=document.createElement("div");
+    t.className="choice-text";
+    t.textContent=opt;
+
+    btn.appendChild(b);
+    btn.appendChild(t);
+
+    btn.onclick=()=>handleChoice(opt,btn,q.word);
+
+    choicesDiv.appendChild(btn);
+  });
+
+  nextBtn.textContent=index===total-1?"Finish":"Next";
+
+  updateCooldownDisplay();
+  updateStats();
+}
+
+function handleChoice(choice,btn,correctWord){
+  if(answered)return;
+  answered=true;
+
+  const buttons=document.querySelectorAll(".choice-btn");
+  buttons.forEach(b=>{
+    const word=b.querySelector(".choice-text").textContent;
+    if(word===correctWord)b.classList.add("correct");
+    if(word===choice && choice!==correctWord)b.classList.add("incorrect");
+  });
+
+  const boss=isBossQuestion(index);
+  let baseXp=boss?200:100;
+  let mult=1;
+
+  if(streak>=3)mult=1.25;
+  if(streak>=6)mult=1.5;
+
+  let delta=0;
+
+  if(choice===correctWord){
+    correctCount++;
+    streak++;
+
+    let gain=baseXp;
+    if(goldActive){
+      gain*=2;
+      goldCooldown=5;
+    }
+
+    gain=Math.round(gain*mult);
+    delta=gain;
+    xp+=gain;
+
+    feedbackDiv.className="correct";
+    feedbackDiv.textContent="Correct. "+def(correctWord);
+
+  }else{
+    streak=0;
+    let loss=0;
+
+    if(goldActive){
+      loss=baseXp*2;
+      goldCooldown=5;
+    }else if(boss){
+      loss=baseXp;
+    }
+
+    delta=-loss;
+    xp+=delta;
+    if(xp<0)xp=0;
+
+    feedbackDiv.className="incorrect";
+    feedbackDiv.textContent="Incorrect. The correct word was \""+correctWord+"\". "+def(correctWord);
+  }
+
+  xpDisplay.textContent=Math.round(xp);
+  streakDisplay.textContent=streak;
+
+  xpDeltaDiv.textContent=delta>0?("+"+delta+" XP"):delta+" XP";
+
+  goldActive=false;
+  updateCooldownDisplay();
+  updateStats();
+}
+
+goForGoldBtn.onclick=()=>{
+  if(answered)return;
+  if(goldCooldown>0)return;
+  goldActive=true;
+};
+
+nextBtn.onclick=()=>{
+  if(!answered)return;
+
+  if(goldCooldown>0)goldCooldown--;
+
+  if(index<questions.length-1){
+    index++;
+    loadQuestion();
+  }else{
+    finishGame();
+  }
+};
+
+difficultySelect.onchange=()=>{
+  index=0;
+  xp=0;
+  streak=0;
+  answered=false;
+  goldActive=false;
+  goldCooldown=0;
+  correctCount=0;
+
+  xpDisplay.textContent="0";
+  streakDisplay.textContent="0";
+  summaryDiv.textContent="";
+  nextBtn.textContent="Next";
+
+  loadQuestion();
+};
+
+function updateStats(){
+  const total=index+1;
+  const accuracy=total>0?Math.round((correctCount/total)*100):0;
+
+  statsText.textContent=
+    "Accuracy: "+accuracy+"% | Correct: "+correctCount+" / "+total+
+    " | Streak: "+streak;
+}
+
+function computeTitle(finalXp){
+  if(finalXp>=12000)return"Lexical Potentate";
+  if(finalXp>=9000)return"Zealous Iconoclast";
+  if(finalXp>=6000)return"Sagacious Virtuoso";
+  if(finalXp>=3500)return"Convivial Wordsmith";
+  if(finalXp>=1500)return"Nascent Neophyte";
+  return"Vernacular Voyager";
+}
+
+function loadLeaderboard(){
+  const stored=localStorage.getItem("vocabShowdownLeaderboard");
+  return stored?JSON.parse(stored):[];
+}
+
+function saveLeaderboard(lb){
+  localStorage.setItem("vocabShowdownLeaderboard",JSON.stringify(lb));
+}
+
+function renderLeaderboard(){
+  const lb=loadLeaderboard().sort((a,b)=>b.xp-a.xp).slice(0,5);
+  leaderboardList.innerHTML="";
+
+  lb.forEach((entry,i)=>{
+    const li=document.createElement("li");
+    li.textContent=(i+1)+". "+entry.name+" — "+entry.xp+" XP";
+
+    const span=document.createElement("span");
+    span.className="badge "+(
+      i===0?"badge-gold":
+      i===1?"badge-silver":
+      i===2?"badge-bronze":""
+    );
+    span.textContent=entry.title;
+
+    li.appendChild(span);
+    leaderboardList.appendChild(li);
+  });
+}
+
+function finishGame(){
+  questionText.textContent="";
+  choicesDiv.innerHTML="";
+  feedbackDiv.textContent="";
+  xpDeltaDiv.textContent="";
+
+  const total=questions.length;
+  const accuracy=Math.round((correctCount/total)*100);
+  const title=computeTitle(Math.round(xp));
+
+  summaryDiv.innerHTML=
+    "You reached "+Math.round(xp)+" XP with "+correctCount+
+    " correct out of "+total+" ("+accuracy+"%).<br>"+
+    "Honorific: <b>"+title+"</b>.";
+
+  const namePrompt=prompt("Enter a name for the leaderboard:","Player");
+
+  if(namePrompt){
+    const lb=loadLeaderboard();
+    lb.push({name:namePrompt.trim()||"Player",xp:Math.round(xp),title});
+    saveLeaderboard(lb);
+    renderLeaderboard();
+  }
+
+  updateStats();
+
+  nextBtn.textContent="Restart";
+  nextBtn.onclick=()=>location.reload();
+}
+
+renderLeaderboard();
+loadQuestion();
+</script>
+</body>
+</html>
+
